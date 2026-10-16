@@ -58,7 +58,7 @@ pub mod simd {
     use crate::_internal::{i2f_bits, u2f_01};
     use crate::SplitMix64;
 
-    /// A 4-way SIMD Biski64 generator using AVX512 512-bit intrinsics.
+    /// An 8-way SIMD Biski64 generator using AVX512 512-bit intrinsics.
     ///
     /// # Example
     /// ```no_run
@@ -83,9 +83,13 @@ pub mod simd {
         /// Creates a new `Biski64x8` from 8 independent seeds.
         ///
         /// # Safety
-        /// Requires AVX512 support (guaranteed by `target-cpu=native` on modern x86_64).
+        /// Panics when AVX-512F is unavailable.
         #[inline(always)]
         pub fn new(seed: u64) -> Self {
+            assert!(
+                std::is_x86_feature_detected!("avx512f"),
+                "AVX-512F required"
+            );
             let mut sg = SplitMix64::new(seed);
             let mut fast_loop = [0u64; 8];
             let mut mix = [0u64; 8];
@@ -104,12 +108,12 @@ pub mod simd {
             }
         }
 
-        /// Generates 4 random `u64` values simultaneously and writes them to `out`.
+        /// Generates 8 random `u64` values simultaneously.
         ///
         /// # Safety
-        /// `out` must point to a valid buffer of at least 8 `u64` values.
-        /// Requires AVX512 support.
-        #[inline(always)]
+        /// The caller must ensure AVX-512F is available.
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn nextu(&mut self) -> [u64; 8] {
             unsafe {
                 // let output = self.mix.wrapping_add(self.loop_mix);
@@ -121,9 +125,9 @@ pub mod simd {
                     _mm512_rol_epi64(self.mix, 16),
                     _mm512_rol_epi64(self.loop_mix, 40),
                 );
+                self.loop_mix = _mm512_xor_si512(self.fast_loop, self.mix);
                 self.fast_loop = fast_loop;
                 self.mix = mix;
-                self.loop_mix = _mm512_xor_si512(self.fast_loop, self.mix);
 
                 let mut res = [0u64; 8];
                 _mm512_storeu_si512(res.as_mut_ptr() as *mut __m512i, output);
@@ -136,7 +140,8 @@ pub mod simd {
         /// # Safety
         ///
         /// The caller must ensure the CPU supports the `avx512f` target feature.
-        #[inline(always)]
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn nextf(&mut self) -> [f64; 8] {
             unsafe {
                 let u = self.nextu();
@@ -153,17 +158,10 @@ pub mod simd {
         /// # Safety
         ///
         /// The caller must ensure the CPU supports the `avx512f` target feature.
-        #[inline(always)]
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn randi(&mut self, min: i64, max: i64) -> [i64; 8] {
-            unsafe {
-                let u = self.nextu();
-                let range = (max as i128 - min as i128 + 1) as u128;
-                let mut out = [0i64; 8];
-                for i in 0..8 {
-                    out[i] = ((u[i] as u128 * range) >> 64) as i64 + min;
-                }
-                out
-            }
+            unsafe { crate::rng::array_randi(|| self.nextu(), min, max) }
         }
 
         /// Generates 8 random `f64` values in [min, max) and writes them to `out`.
@@ -171,17 +169,10 @@ pub mod simd {
         /// # Safety
         ///
         /// The caller must ensure the CPU supports the `avx512f` target feature.
-        #[inline(always)]
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn randf(&mut self, min: f64, max: f64) -> [f64; 8] {
-            unsafe {
-                let u = self.nextu();
-                let range = max - min;
-                let mut out = [0f64; 8];
-                for i in 0..8 {
-                    out[i] = u2f_01!(f64, 64, u[i]) * range + min;
-                }
-                out
-            }
+            unsafe { self.nextu().map(|x| crate::Word::to_randf(x, min, max)) }
         }
     }
 }
@@ -193,5 +184,40 @@ mod tests {
     crate::safe_test! { Biski64 }
 
     #[cfg(all(feature = "simd", target_feature = "avx512f"))]
-    crate::unsafe_test! { Biski64x8 }
+    crate::unsafe_test! { nextu, nextf; Biski64x8 }
+}
+
+#[cfg(all(test, feature = "simd", target_arch = "x86_64"))]
+mod regression {
+    use super::*;
+    #[test]
+    fn all_lanes_match_scalar_and_independent_reference() {
+        if !std::is_x86_feature_detected!("avx512f") {
+            return;
+        }
+        for seed in [0, 1, 42, u64::MAX] {
+            let mut sg = seed;
+            let initial: [[u64; 3]; 8] = std::array::from_fn(|_| {
+                [
+                    crate::test_reference::sm64(&mut sg),
+                    crate::test_reference::sm64(&mut sg),
+                    crate::test_reference::sm64(&mut sg),
+                ]
+            });
+            let mut refs = initial;
+            let mut scalars = std::array::from_fn::<_, 8, _>(|i| Biski64 {
+                fast_loop: wrap!(initial[i][0]),
+                mix: wrap!(initial[i][1]),
+                loop_mix: wrap!(initial[i][2]),
+            });
+            let mut vector = Biski64x8::new(seed);
+            for _ in 0..1024 {
+                for (i, word) in unsafe { vector.nextu() }.into_iter().enumerate() {
+                    let expected = crate::test_reference::biski(&mut refs[i]);
+                    assert_eq!(word, expected);
+                    assert_eq!(scalars[i].nextu(), expected);
+                }
+            }
+        }
+    }
 }

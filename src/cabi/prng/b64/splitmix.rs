@@ -1,111 +1,114 @@
-use std::slice::from_raw_parts_mut;
+//! C ABI exports backed by the shared buffered stream. See [`crate::cabi`].
+use crate::cabi::stream;
+use crate::*;
 
-use rayon::prelude::*;
-use wrapn::{wrap, wu64};
-
-use crate::_internal::{fill_chunk_auto, prefer_nt};
-use crate::prng::b64::SplitMix64;
-use crate::{i2f_bits, u2f_01};
-
-/// Creates a new heap-allocated `SplitMix64` and returns a raw pointer to it.
-/// The caller is responsible for freeing it with [`splitmix64_free`].
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn splitmix64_new(seed: u64) -> *mut SplitMix64 {
-    Box::into_raw(Box::new(SplitMix64::new(seed)))
+    stream::new::<_, u64, 1>(SplitMix64::new(seed))
 }
-/// Frees a `SplitMix64` instance previously created by [`splitmix64_new`].
-/// Does nothing if `ptr` is null.
+
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn splitmix64_free(ptr: *mut SplitMix64) {
-    if !ptr.is_null() {
-        unsafe { drop(Box::from_raw(ptr)) };
-    }
+pub unsafe extern "C" fn splitmix64_free(ptr: *mut SplitMix64) {
+    unsafe { stream::free::<SplitMix64, u64, 1>(ptr) }
 }
 
-const SPLITMIX64_PAR_CHUNK: usize = 0x20000;
-const SPLITMIX64_GAMMA: u64 = 0x9E3779B97F4A7C15;
-
-/// Fills `buffer` in parallel from counter-mode SplitMix64 states
-/// (`s0 + index * GAMMA`), mapping each raw `u64` through `map`. Eight
-/// outputs (64 bytes for 8-byte `T`) are batched per generator call so
-/// the non-temporal path can stream whole cache lines.
-#[inline(always)]
-fn sm64_fill<T, M>(buffer: &mut [T], s0: wu64, map: M)
-where
-    T: Copy + Default + Send,
-    M: Fn(u64) -> T + Sync,
-{
-    let nt = prefer_nt::<T>(buffer.len());
-    buffer
-        .par_chunks_mut(SPLITMIX64_PAR_CHUNK)
-        .enumerate()
-        .for_each(|(chunk_idx, chunk)| {
-            let mut idx = (chunk_idx * SPLITMIX64_PAR_CHUNK) as u64;
-            unsafe {
-                fill_chunk_auto(chunk, nt, || {
-                    let mut out = [T::default(); 8];
-                    for v in &mut out {
-                        idx += 1;
-                        let state = s0 + idx.wrapping_mul(SPLITMIX64_GAMMA);
-                        *v = map(SplitMix64::compute(*state));
-                    }
-                    out
-                });
-            }
-        });
-}
-
-/// Fills `out[0..count]` with raw `u64` random values using parallel chunk generation.
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn splitmix64_next_u64s(ptr: *mut SplitMix64, out: *mut u64, count: usize) {
+pub unsafe extern "C" fn splitmix64_next_u64s(ptr: *mut SplitMix64, out: *mut u64, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        sm64_fill(buffer, rng.s, |x| x);
-        rng.s += (count as u64).wrapping_mul(SPLITMIX64_GAMMA);
+        stream::fill::<SplitMix64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values in `[0, 1)` using parallel chunk generation.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn splitmix64_next_f64s(ptr: *mut SplitMix64, out: *mut f64, count: usize) {
+pub unsafe extern "C" fn splitmix64_next_f64s(ptr: *mut SplitMix64, out: *mut f64, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        sm64_fill(buffer, rng.s, |x| u2f_01!(f64, 64, x));
-        rng.s += (count as u64).wrapping_mul(SPLITMIX64_GAMMA);
+        stream::fill::<SplitMix64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
-/// Fills `out[0..count]` with `i64` values in `[min, max]` using parallel chunk generation.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn splitmix64_rand_i64s(
+pub unsafe extern "C" fn splitmix64_rand_i64s(
     ptr: *mut SplitMix64,
     out: *mut i64,
     count: usize,
     min: i64,
     max: i64,
 ) {
+    if min > max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        let range = (max as i128 - min as i128 + 1) as u128;
-        sm64_fill(buffer, rng.s, |x| ((x as u128 * range) >> 64) as i64 + min);
-        rng.s += wrap!(count as u64) * SPLITMIX64_GAMMA;
+        stream::fill::<SplitMix64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values in `[min, max)` using parallel chunk generation.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn splitmix64_rand_f64s(
+pub unsafe extern "C" fn splitmix64_rand_f64s(
     ptr: *mut SplitMix64,
     out: *mut f64,
     count: usize,
     min: f64,
     max: f64,
 ) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        let mult = max - min;
-        sm64_fill(buffer, rng.s, |x| u2f_01!(f64, 64, x) * mult + min);
-        rng.s += (count as u64).wrapping_mul(SPLITMIX64_GAMMA);
+        stream::fill::<SplitMix64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }

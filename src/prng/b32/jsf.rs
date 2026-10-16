@@ -105,8 +105,8 @@ pub mod simd {
         #[inline]
         fn nextuv(&mut self) -> __m256i {
             unsafe {
-                let e = _mm256_sub_epi32(self.a, _mm256_rol_epi32(self.b, 27));
-                self.a = _mm256_xor_si256(self.b, _mm256_rol_epi32(self.c, 17));
+                let e = _mm256_sub_epi32(self.a, crate::avx2::rol_epi32(self.b, 27));
+                self.a = _mm256_xor_si256(self.b, crate::avx2::rol_epi32(self.c, 17));
                 self.b = _mm256_add_epi32(self.c, self.d);
                 self.c = _mm256_add_epi32(self.d, e);
                 self.d = _mm256_add_epi32(e, self.a);

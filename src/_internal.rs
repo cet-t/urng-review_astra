@@ -3,7 +3,6 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-
 /// SIMD bit-trick converters mapping an integer lane vector uniformly onto
 /// `[0, 1)`, matching the scalar [`u2f_01`] exactly lane-by-lane (top mantissa
 /// bits via `(x >> bias) | exponent`, then `- 1.0`). Used by every SIMD
@@ -541,10 +540,19 @@ macro_rules! safe_test {
 pub(crate) use safe_test;
 
 macro_rules! unsafe_test {
-    ($($name:ident),+) => {
+    ($($name:ident),+) => { $crate::unsafe_test!(nextuv, nextfv; $($name),+); };
+    ($uint:ident, $float:ident; $($name:ident),+) => {
         $(pastey::paste! {
             #[test]
             fn [<test_ $name:snake>]() {
+                #[allow(unused_imports)]
+                use $crate::RngV as _;
+                let supported = match stringify!($name) {
+                    "Jsf32x8" | "Xorshift32x8" | "Xoroshiro64Ssx8" | "Sfc32x8" => std::is_x86_feature_detected!("avx2"),
+                    "Squares32x8" | "Cet64x8" | "Cet256x2" => std::is_x86_feature_detected!("avx512dq"),
+                    _ => std::is_x86_feature_detected!("avx512f"),
+                };
+                if !supported { return; }
                 unsafe fn as_bytes<T>(v: &T) -> &[u8] {
                     unsafe {
                         std::slice::from_raw_parts(v as *const T as *const u8, std::mem::size_of::<T>())
@@ -555,12 +563,12 @@ macro_rules! unsafe_test {
                     let mut rng1 = $name::new(0);
                     let mut rng2 = $name::new(0);
 
-                    let u1 = rng1.nextuv();
-                    let u2 = rng2.nextuv();
+                    let u1 = rng1.$uint();
+                    let u2 = rng2.$uint();
                     assert_eq!(as_bytes(&u1), as_bytes(&u2));
 
-                    let f1 = rng1.nextfv();
-                    let f2 = rng2.nextfv();
+                    let f1 = rng1.$float();
+                    let f2 = rng2.$float();
                     assert_eq!(as_bytes(&f1), as_bytes(&f2));
                 }
             }

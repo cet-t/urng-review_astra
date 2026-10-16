@@ -244,3 +244,39 @@ void mt19937_free(void* ptr);
 [SeedableRng]: https://docs.rs/rand_core/latest/rand_core/trait.SeedableRng.html
 [TryRng]: https://docs.rs/rand_core/latest/rand_core/trait.TryRng.html
 [try_fill_bytes]: https://docs.rs/rand_core/latest/rand_core/trait.TryRng.html#tymethod.try_fill_bytes
+
+
+## Correctness fixes following the 1.0.0 review
+
+The corrected algorithms and seeding intentionally change affected sequences;
+seeded output from the original 1.0.0 release is not a compatibility target.
+`SplitMix32` uses this crate's existing 32-bit state / 64-bit finalizer formula.
+Its wide and SIMD variants now return consecutive scalar outputs.
+
+- `Rng::randi`, `Rng::index`, `Choice` and `Shuffle` use rejection sampling to
+  avoid range-reduction bias. A ranged draw can consume multiple raw words.
+  `RngW` and `RngV::randiv` also reject per lane. The single-word
+  `Word::to_randi`, `Word::to_index`, and `WordV::to_randi` remain low-level
+  mappings which can be biased. `WordV::to_randf` / `RngV::randfv` are low-level
+  affine transformations accepting a scale, without a half-open range guarantee.
+- `Rng::randf` and array variants require finite bounds with `min < max`.
+  They handle overflowing widths and exclude `max` even after rounding.
+  `Bst32`/`Bst64` reject invalid weights and never select a zero-weight interval.
+- `ChaCha20::from_key_nonce` accepts an RFC 8439 key, 96-bit nonce, and 32-bit
+  block counter. `Salsa20::from_key_nonce` accepts a 256-bit key, 64-bit nonce,
+  and 64-bit counter. Counter exhaustion panics before repeating a block.
+  The `new(u32)` and time-based `Default` seeds are not cryptographic entropy.
+  These changes do not constitute a cryptographic security audit.
+- C ABI handles are opaque and must be created/freed by matching functions.
+  Rust calls to fill/free now require `unsafe`. Valid buffers must be live,
+  exclusive, naturally aligned and disjoint from the handle. Null, misaligned,
+  zero-length or invalid-range fills are no-ops. SIMD constructors return null
+  on unsupported CPUs. Fill calls preserve pending words and form one continuous
+  stream regardless of output address or call partitioning. Parallel reseeding
+  and non-temporal stores were removed; large C ABI fills can be slower.
+- `simd` targets x86_64. Callers of unsafe target-feature Rust methods must
+  check the documented CPU features. `wide` remains the portable alternative.
+
+See [FIX_REPORT.md](FIX_REPORT.md) for verification, compatibility and measured
+performance changes. `tools/check_features.py` rebuilds all feature combinations;
+`tools/review_bench.rs` is the identical before/after benchmark harness.

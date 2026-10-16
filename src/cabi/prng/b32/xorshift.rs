@@ -1,126 +1,225 @@
-use crate::prng::b32::{Xorshift32, Xorshift128};
-use crate::rng::Rng;
+//! C ABI exports backed by the shared buffered stream. See [`crate::cabi`].
+use crate::cabi::stream;
+use crate::*;
 
-/// Creates a new `Xorshift32` instance.
-/// The caller is responsible for freeing the memory using `xorshift32_free`.
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn xorshift32_new(seed: u32) -> *mut Xorshift32 {
-    Box::into_raw(Box::new(Xorshift32::new(seed)))
+    stream::new::<_, u32, 1>(Xorshift32::new(seed as u32))
 }
 
-/// Frees the memory of a `Xorshift32` instance.
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift32_free(ptr: *mut Xorshift32) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = Box::from_raw(ptr);
-        }
-    }
+pub unsafe extern "C" fn xorshift32_free(ptr: *mut Xorshift32) {
+    unsafe { stream::free::<Xorshift32, u32, 1>(ptr) }
 }
 
-/// Fills the output buffer with the next random `u32` values.
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift32_next_u32s(ptr: *mut Xorshift32, out: *mut u32, count: usize) {
+pub unsafe extern "C" fn xorshift32_next_u32s(ptr: *mut Xorshift32, out: *mut u32, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextu());
+        stream::fill::<Xorshift32, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
 
-/// Fills the output buffer with the next random `f32` values in the range [0, 1).
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift32_next_f32s(ptr: *mut Xorshift32, out: *mut f32, count: usize) {
+pub unsafe extern "C" fn xorshift32_next_f32s(ptr: *mut Xorshift32, out: *mut f32, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextf());
+        stream::fill::<Xorshift32, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
 
-/// Fills the output buffer with random `i32` values in the range [min, max].
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift32_rand_i32s(
+pub unsafe extern "C" fn xorshift32_rand_i32s(
     ptr: *mut Xorshift32,
     out: *mut i32,
     count: usize,
     min: i32,
     max: i32,
 ) {
+    if min > max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randi(min, max));
+        stream::fill::<Xorshift32, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
 
-/// Fills the output buffer with random `f32` values in the range [min, max).
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift32_rand_f32s(
+pub unsafe extern "C" fn xorshift32_rand_f32s(
     ptr: *mut Xorshift32,
     out: *mut f32,
     count: usize,
     min: f32,
     max: f32,
 ) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randf(min, max));
+        stream::fill::<Xorshift32, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }
 
-/// Creates a new heap-allocated `Xorshift128` and returns a raw pointer to it.
-/// The caller is responsible for freeing it with [`xorshift128_free`].
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn xorshift128_new(seed: u32) -> *mut Xorshift128 {
-    Box::into_raw(Box::new(Xorshift128::new(seed)))
+    stream::new::<_, u32, 1>(Xorshift128::new(seed as u32))
 }
-/// Frees a `Xorshift128` instance previously created by [`xorshift128_new`].
-/// Does nothing if `ptr` is null.
+
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift128_free(ptr: *mut Xorshift128) {
-    if !ptr.is_null() {
-        unsafe { drop(Box::from_raw(ptr)) };
-    }
+pub unsafe extern "C" fn xorshift128_free(ptr: *mut Xorshift128) {
+    unsafe { stream::free::<Xorshift128, u32, 1>(ptr) }
 }
-/// Fills `out[0..count]` with raw `u32` values from the generator.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift128_next_u32s(ptr: *mut Xorshift128, out: *mut u32, count: usize) {
+pub unsafe extern "C" fn xorshift128_next_u32s(ptr: *mut Xorshift128, out: *mut u32, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextu());
+        stream::fill::<Xorshift128, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
-/// Fills `out[0..count]` with `f32` values in `[0, 1)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift128_next_f32s(ptr: *mut Xorshift128, out: *mut f32, count: usize) {
+pub unsafe extern "C" fn xorshift128_next_f32s(ptr: *mut Xorshift128, out: *mut f32, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextf());
+        stream::fill::<Xorshift128, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
-/// Fills `out[0..count]` with `i32` values in `[min, max]`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift128_rand_i32s(
+pub unsafe extern "C" fn xorshift128_rand_i32s(
     ptr: *mut Xorshift128,
     out: *mut i32,
     count: usize,
     min: i32,
     max: i32,
 ) {
+    if min > max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randi(min, max));
+        stream::fill::<Xorshift128, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `f32` values in `[min, max)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift128_rand_f32s(
+pub unsafe extern "C" fn xorshift128_rand_f32s(
     ptr: *mut Xorshift128,
     out: *mut f32,
     count: usize,
     min: f32,
     max: f32,
 ) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randf(min, max));
+        stream::fill::<Xorshift128, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }

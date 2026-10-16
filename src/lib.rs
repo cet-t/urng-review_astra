@@ -1,6 +1,8 @@
-#![cfg_attr(not(doctest), doc = include_str!("../Readme.md"))]
+#![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
 #![allow(ambiguous_glob_reexports)]
 
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+mod avx2;
 mod rng;
 pub use crate::rng::*;
 
@@ -50,3 +52,7 @@ pub use crate::seedgen::*;
 
 #[macro_use]
 mod macros;
+
+#[cfg(test)]
+#[path = "../tests/support/reference.rs"]
+mod test_reference;

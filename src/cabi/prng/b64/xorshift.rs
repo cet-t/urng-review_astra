@@ -1,61 +1,114 @@
-use crate::prng::b64::Xorshift64;
-use crate::rng::Rng;
+//! C ABI exports backed by the shared buffered stream. See [`crate::cabi`].
+use crate::cabi::stream;
+use crate::*;
 
-/// Creates a new heap-allocated `Xorshift64` and returns a raw pointer to it.
-/// The caller is responsible for freeing it with [`xorshift64_free`].
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn xorshift64_new(seed: u64) -> *mut Xorshift64 {
-    Box::into_raw(Box::new(Xorshift64::new(seed)))
+    stream::new::<_, u64, 1>(Xorshift64::new(seed))
 }
-/// Frees a `Xorshift64` instance previously created by [`xorshift64_new`].
-/// Does nothing if `ptr` is null.
+
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift64_free(ptr: *mut Xorshift64) {
-    if !ptr.is_null() {
-        unsafe { drop(Box::from_raw(ptr)) };
-    }
+pub unsafe extern "C" fn xorshift64_free(ptr: *mut Xorshift64) {
+    unsafe { stream::free::<Xorshift64, u64, 1>(ptr) }
 }
-/// Fills `out[0..count]` with raw `u64` random values.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift64_next_u64s(ptr: *mut Xorshift64, out: *mut u64, count: usize) {
+pub unsafe extern "C" fn xorshift64_next_u64s(ptr: *mut Xorshift64, out: *mut u64, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextu());
+        stream::fill::<Xorshift64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[0, 1)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift64_next_f64s(ptr: *mut Xorshift64, out: *mut f64, count: usize) {
+pub unsafe extern "C" fn xorshift64_next_f64s(ptr: *mut Xorshift64, out: *mut f64, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextf());
+        stream::fill::<Xorshift64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
-/// Fills `out[0..count]` with `i64` values uniformly distributed in `[min, max]`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift64_rand_i64s(
+pub unsafe extern "C" fn xorshift64_rand_i64s(
     ptr: *mut Xorshift64,
     out: *mut i64,
     count: usize,
     min: i64,
     max: i64,
 ) {
+    if min > max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randi(min, max));
+        stream::fill::<Xorshift64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[min, max)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xorshift64_rand_f64s(
+pub unsafe extern "C" fn xorshift64_rand_f64s(
     ptr: *mut Xorshift64,
     out: *mut f64,
     count: usize,
     min: f64,
     max: f64,
 ) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randf(min, max));
+        stream::fill::<Xorshift64, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }

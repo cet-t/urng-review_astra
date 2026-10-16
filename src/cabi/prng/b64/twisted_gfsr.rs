@@ -1,62 +1,122 @@
-use crate::prng::b64::TwistedGFSR;
-use crate::rng::Rng;
+//! C ABI exports backed by the shared buffered stream. See [`crate::cabi`].
+use crate::cabi::stream;
+use crate::*;
 
-/// Creates a new heap-allocated `TwistedGFSR` using the built-in default seed array.
-/// The `_seed` argument is currently unused. The caller must free the result with
-/// [`twisted_gfsr_free`].
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn twisted_gfsr_new(seed: u64) -> *mut TwistedGFSR {
-    Box::into_raw(Box::new(TwistedGFSR::new(seed)))
+    stream::new::<_, u64, 1>(TwistedGFSR::new(seed))
 }
-/// Frees a `TwistedGFSR` instance previously created by [`twisted_gfsr_new`].
-/// Does nothing if `ptr` is null.
+
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn twisted_gfsr_free(ptr: *mut TwistedGFSR) {
-    if !ptr.is_null() {
-        unsafe { drop(Box::from_raw(ptr)) };
-    }
+pub unsafe extern "C" fn twisted_gfsr_free(ptr: *mut TwistedGFSR) {
+    unsafe { stream::free::<TwistedGFSR, u64, 1>(ptr) }
 }
-/// Fills `out[0..count]` with raw `u64` random values.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn twisted_gfsr_next_u64s(ptr: *mut TwistedGFSR, out: *mut u64, count: usize) {
+pub unsafe extern "C" fn twisted_gfsr_next_u64s(
+    ptr: *mut TwistedGFSR,
+    out: *mut u64,
+    count: usize,
+) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextu());
+        stream::fill::<TwistedGFSR, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[0, 1)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn twisted_gfsr_next_f64s(ptr: *mut TwistedGFSR, out: *mut f64, count: usize) {
+pub unsafe extern "C" fn twisted_gfsr_next_f64s(
+    ptr: *mut TwistedGFSR,
+    out: *mut f64,
+    count: usize,
+) {
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.nextf());
+        stream::fill::<TwistedGFSR, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
-/// Fills `out[0..count]` with `i64` values uniformly distributed in `[min, max]`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn twisted_gfsr_rand_i64s(
+pub unsafe extern "C" fn twisted_gfsr_rand_i64s(
     ptr: *mut TwistedGFSR,
     out: *mut i64,
     count: usize,
     min: i64,
     max: i64,
 ) {
+    if min > max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randi(min, max));
+        stream::fill::<TwistedGFSR, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[min, max)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn twisted_gfsr_rand_f64s(
+pub unsafe extern "C" fn twisted_gfsr_rand_f64s(
     ptr: *mut TwistedGFSR,
     out: *mut f64,
     count: usize,
     min: f64,
     max: f64,
 ) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        crate::_internal::fill_with(out, count, || rng.randf(min, max));
+        stream::fill::<TwistedGFSR, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }

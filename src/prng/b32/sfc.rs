@@ -78,6 +78,15 @@ pub mod simd {
     }
 
     impl Sfc32x4 {
+        #[cfg(test)]
+        pub(crate) fn randiv(&mut self, range: __m128i, min: __m128i) -> __m128i {
+            crate::WordV::to_randi(self.nextuv(), range, min)
+        }
+        #[cfg(test)]
+        pub(crate) fn randfv(&mut self, scale: __m128, min: __m128) -> __m128 {
+            crate::WordV::to_randf(self.nextuv(), scale, min)
+        }
+
         /// Creates a new `Sfc32x4` instance with the given seed.
         pub fn new(seed: u32) -> Self {
             let mut seedgen = SplitMix32::new(seed);
@@ -116,32 +125,9 @@ pub mod simd {
         }
 
         #[inline(always)]
+        #[cfg(test)]
         pub(crate) fn nextfv(&mut self) -> __m128 {
             unsafe { crate::_internal::simd_f01::u32x4(self.nextuv()) }
-        }
-
-        #[inline(always)]
-        pub(crate) fn randiv(&mut self, v_range: __m128i, v_min: __m128i) -> __m128i {
-            unsafe {
-                let uv = self.nextuv();
-                let hi = _mm_set1_epi64x((0xffff_ffffu64 << 32) as i64);
-                let res_even = _mm_srli_epi64(_mm_mul_epu32(uv, v_range), 32);
-                let prod_odd = _mm_and_si128(
-                    _mm_mul_epu32(_mm_srli_epi64(uv, 32), _mm_srli_epi64(v_range, 32)),
-                    hi,
-                );
-                _mm_add_epi32(_mm_or_si128(res_even, prod_odd), v_min)
-            }
-        }
-
-        #[inline(always)]
-        pub(crate) fn randfv(&mut self, v_mult: __m128, v_min: __m128) -> __m128 {
-            unsafe {
-                _mm_add_ps(
-                    _mm_mul_ps(crate::_internal::simd_f01::u32x4(self.nextuv()), v_mult),
-                    v_min,
-                )
-            }
         }
 
         #[inline(always)]
@@ -207,32 +193,15 @@ pub mod simd {
             self.counter = _mm256_add_epi32(self.counter, _mm256_set1_epi32(1));
             self.a = _mm256_xor_si256(self.b, _mm256_srli_epi32(self.b, 9));
             self.b = _mm256_add_epi32(self.c, _mm256_slli_epi32(self.c, 3));
-            self.c = _mm256_add_epi32(unsafe { _mm256_rol_epi32(self.c, 21) }, tmp);
+            self.c = _mm256_add_epi32(unsafe { crate::avx2::rol_epi32(self.c, 21) }, tmp);
             tmp
         }
 
         #[inline]
         #[target_feature(enable = "avx2")]
+        #[cfg(test)]
         pub(crate) unsafe fn nextfv(&mut self) -> __m256 {
             unsafe { crate::_internal::simd_f01::u32x8(self.nextuv()) }
-        }
-
-        #[inline]
-        #[target_feature(enable = "avx2")]
-        pub(crate) unsafe fn randiv(&mut self, v_range: __m256i, v_min: __m256i) -> __m256i {
-            const MERGE_MASK: u8 = 0xAA;
-            let v_u32 = unsafe { self.nextuv() };
-            let res_even = _mm256_srli_epi64(_mm256_mul_epu32(v_u32, v_range), 32);
-            let prod_odd = _mm256_mul_epu32(_mm256_srli_epi64(v_u32, 32), v_range);
-            let merged = unsafe { _mm256_mask_blend_epi32(MERGE_MASK, res_even, prod_odd) };
-            _mm256_add_epi32(merged, v_min)
-        }
-
-        #[inline]
-        #[target_feature(enable = "avx2")]
-        pub(crate) unsafe fn randfv(&mut self, v_mult: __m256, v_min: __m256) -> __m256 {
-            let base = unsafe { crate::_internal::simd_f01::u32x8(self.nextuv()) };
-            _mm256_add_ps(_mm256_mul_ps(base, v_mult), v_min)
         }
 
         #[inline(always)]
@@ -304,28 +273,9 @@ pub mod simd {
 
         #[inline]
         #[target_feature(enable = "avx512f")]
+        #[cfg(test)]
         pub(crate) unsafe fn nextfv(&mut self) -> __m512 {
             unsafe { crate::_internal::simd_f01::u32x16(self.nextuv()) }
-        }
-
-        #[inline]
-        #[target_feature(enable = "avx512f")]
-        pub(crate) unsafe fn randiv(&mut self, v_range: __m512i, v_min: __m512i) -> __m512i {
-            const MERGE_MASK: u16 = 0xAAAA;
-            let v_u32 = unsafe { self.nextuv() };
-            let prod_even = _mm512_mul_epu32(v_u32, v_range);
-            let res_even = _mm512_srli_epi64(prod_even, 32);
-            let v_u32_shifted = _mm512_srli_epi64(v_u32, 32);
-            let prod_odd = _mm512_mul_epu32(v_u32_shifted, v_range);
-            let merged = _mm512_mask_blend_epi32(MERGE_MASK, res_even, prod_odd);
-            _mm512_add_epi32(merged, v_min)
-        }
-
-        #[inline]
-        #[target_feature(enable = "avx512f")]
-        pub(crate) unsafe fn randfv(&mut self, v_mult: __m512, v_min: __m512) -> __m512 {
-            let base = unsafe { crate::_internal::simd_f01::u32x16(self.nextuv()) };
-            _mm512_add_ps(_mm512_mul_ps(base, v_mult), v_min)
         }
 
         #[inline(always)]

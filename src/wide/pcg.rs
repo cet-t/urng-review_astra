@@ -30,10 +30,10 @@ macro_rules! impl_pcg32_variants {
             impl [<Pcg32x $size>] {
                 #[doc = "Creates a new generator, seeding every lane's state and increment from `seed`."]
                 pub fn new(seed: u64) -> Self {
-                    let mut seedgen = SplitMix64::new(seed | 1);
+                    let mut seedgen = SplitMix64::new(seed);
                     Self {
                         state: [<u64x $lanes>]::from([0u64; $lanes].map(|_| seedgen.nextu())),
-                        inc: [<u64x $lanes>]::from([0u64; $lanes].map(|_| seedgen.nextu())),
+                        inc: [<u64x $lanes>]::from([0u64; $lanes].map(|_| seedgen.nextu() | 1)),
                     }
                 }
 
@@ -112,6 +112,50 @@ impl RngW<16> for Pcg32x16 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn all_widths_match_scalar_and_reference_with_odd_increments() {
+        macro_rules! check {
+            ($rng:expr,$states:expr,$incs:expr,$n:expr) => {{
+                let mut rng = $rng;
+                let mut states = $states;
+                let incs = $incs;
+                assert!(incs.iter().all(|x| x & 1 == 1));
+                let mut scalars = std::array::from_fn::<_, $n, _>(|i| {
+                    crate::Pcg32::from_raw_for_test(states[i], incs[i])
+                });
+                for _ in 0..1024 {
+                    for (i, word) in rng.nextu().into_iter().enumerate() {
+                        let expected = crate::test_reference::pcg(&mut states[i], incs[i]);
+                        assert_eq!(word, expected);
+                        assert_eq!(scalars[i].nextu(), expected);
+                    }
+                }
+            }};
+        }
+        let r = Pcg32x4::new(0);
+        let (s, i) = (r.state.to_array(), r.inc.to_array());
+        check!(r, s, i, 4);
+        let r = Pcg32x8::new(0);
+        let (s, i) = (r.state.to_array(), r.inc.to_array());
+        check!(r, s, i, 8);
+        let r = Pcg32x16::new(0);
+        let s: [u64; 16] = std::array::from_fn(|i| {
+            if i < 8 {
+                r.lo.state.to_array()[i]
+            } else {
+                r.hi.state.to_array()[i - 8]
+            }
+        });
+        let inc: [u64; 16] = std::array::from_fn(|i| {
+            if i < 8 {
+                r.lo.inc.to_array()[i]
+            } else {
+                r.hi.inc.to_array()[i - 8]
+            }
+        });
+        check!(r, s, inc, 16);
+    }
 
     crate::safe_test! {
         Pcg32x4,

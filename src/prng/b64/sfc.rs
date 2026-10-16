@@ -44,7 +44,7 @@ impl Rng for Sfc64 {
         let res = self.a + self.b + self.counter;
         self.a = self.b ^ (self.b >> 11);
         self.b = self.c + (self.c << 3);
-        self.c = res.rotate_left(24);
+        self.c = self.c.rotate_left(24) + res;
 
         self.counter += 1;
         *res
@@ -63,7 +63,7 @@ pub mod simd {
 
     // --- Sfc64x4 (AVX2) ---
 
-    /// A 4-way SIMD SFC64 generator using AVX2 256-bit intrinsics.
+    /// An 8-way SIMD SFC64 generator using AVX-512F intrinsics.
     ///
     /// # Example
     /// ```no_run
@@ -86,9 +86,13 @@ pub mod simd {
         /// Creates a new `Sfc64x8` from 8 independent seeds.
         ///
         /// # Safety
-        /// Requires AVX512 support (guaranteed by `target-cpu=native` on modern x86_64).
+        /// Panics when AVX-512F is unavailable.
         #[inline(always)]
         pub fn new(seed: u64) -> Self {
+            assert!(
+                std::is_x86_feature_detected!("avx512f"),
+                "AVX-512F required"
+            );
             let mut a = [0u64; 8];
             let mut b = [0u64; 8];
             let mut c = [0u64; 8];
@@ -108,12 +112,12 @@ pub mod simd {
             }
         }
 
-        /// Generates 4 random `u64` values simultaneously and writes them to `out`.
+        /// Generates 8 random `u64` values simultaneously.
         ///
         /// # Safety
-        /// `out` must point to a valid buffer of at least 8 `u64` values.
-        /// Requires AVX512 support.
-        #[inline(always)]
+        /// The caller must ensure AVX-512F is available.
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn nextu(&mut self) -> [u64; 8] {
             unsafe {
                 let one = _mm512_set1_epi64(1);
@@ -127,8 +131,8 @@ pub mod simd {
                 // b = c + (c << 3)
                 self.b = _mm512_add_epi64(self.c, _mm512_slli_epi64(self.c, 3));
 
-                // c = rotate_left(res, 24) = (res << 24) | (res >> 40)
-                self.c = _mm512_or_si512(_mm512_slli_epi64(res, 24), _mm512_srli_epi64(res, 40));
+                // c = rotate_left(old_c, 24) + result
+                self.c = _mm512_add_epi64(_mm512_rol_epi64(self.c, 24), res);
 
                 // counter += 1
                 self.counter = _mm512_add_epi64(self.counter, one);
@@ -145,7 +149,8 @@ pub mod simd {
         /// # Safety
         ///
         /// The caller must ensure the CPU supports the `avx512f` target feature.
-        #[inline(always)]
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn nextf(&mut self) -> [f64; 8] {
             unsafe {
                 let u = self.nextu();
@@ -162,17 +167,10 @@ pub mod simd {
         /// # Safety
         ///
         /// The caller must ensure the CPU supports the `avx512f` target feature.
-        #[inline(always)]
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn randi(&mut self, min: i64, max: i64) -> [i64; 8] {
-            unsafe {
-                let u = self.nextu();
-                let range = (max as i128 - min as i128 + 1) as u128;
-                let mut out = [0i64; 8];
-                for i in 0..8 {
-                    out[i] = ((u[i] as u128 * range) >> 64) as i64 + min;
-                }
-                out
-            }
+            unsafe { crate::rng::array_randi(|| self.nextu(), min, max) }
         }
 
         /// Generates 8 random `f64` values in [min, max) and writes them to `out`.
@@ -180,17 +178,10 @@ pub mod simd {
         /// # Safety
         ///
         /// The caller must ensure the CPU supports the `avx512f` target feature.
-        #[inline(always)]
+        #[inline]
+        #[target_feature(enable = "avx512f")]
         pub unsafe fn randf(&mut self, min: f64, max: f64) -> [f64; 8] {
-            unsafe {
-                let u = self.nextu();
-                let range = max - min;
-                let mut out = [0f64; 8];
-                for i in 0..8 {
-                    out[i] = u2f_01!(f64, 64, u[i]) * range + min;
-                }
-                out
-            }
+            unsafe { self.nextu().map(|x| crate::Word::to_randf(x, min, max)) }
         }
     }
 }
@@ -202,5 +193,42 @@ mod tests {
     crate::safe_test! { Sfc64 }
 
     #[cfg(all(feature = "simd", target_feature = "avx512f"))]
-    crate::unsafe_test! { Sfc64x8 }
+    crate::unsafe_test! { nextu, nextf; Sfc64x8 }
+}
+
+#[cfg(all(test, feature = "simd", target_arch = "x86_64"))]
+mod regression {
+    use super::*;
+    #[test]
+    fn all_lanes_match_scalar_and_independent_reference() {
+        if !std::is_x86_feature_detected!("avx512f") {
+            return;
+        }
+        for seed in [0, 1, 42, u64::MAX] {
+            let mut sg = seed;
+            let initial: [[u64; 4]; 8] = std::array::from_fn(|_| {
+                [
+                    crate::test_reference::sm64(&mut sg),
+                    crate::test_reference::sm64(&mut sg),
+                    crate::test_reference::sm64(&mut sg),
+                    1,
+                ]
+            });
+            let mut refs = initial;
+            let mut scalars = std::array::from_fn::<_, 8, _>(|i| Sfc64 {
+                a: wrap!(initial[i][0]),
+                b: wrap!(initial[i][1]),
+                c: wrap!(initial[i][2]),
+                counter: wrap!(initial[i][3]),
+            });
+            let mut vector = Sfc64x8::new(seed);
+            for _ in 0..1024 {
+                for (i, word) in unsafe { vector.nextu() }.into_iter().enumerate() {
+                    let expected = crate::test_reference::sfc(&mut refs[i]);
+                    assert_eq!(word, expected);
+                    assert_eq!(scalars[i].nextu(), expected);
+                }
+            }
+        }
+    }
 }

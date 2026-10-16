@@ -1,0 +1,8 @@
+cargo :    Compiling urng v1.0.0 (D:\.repo\urng-review_gpt-6-astra)
+発生場所 行:2 文字:95
++ ... lyContinue; cargo build --locked --offline --all-features *> target/r ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling ur...ew_gpt-6-astra):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.59s

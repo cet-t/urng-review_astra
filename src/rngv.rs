@@ -1,7 +1,5 @@
 use std::arch::x86_64::*;
 
-use crate::_internal::simd_f01;
-
 mod sealed {
     use std::arch::x86_64::{__m128i, __m256i, __m512i};
 
@@ -18,101 +16,86 @@ pub trait WordV: sealed::Sealed + Copy + Sized {
     #[must_use]
     fn to_f01(self) -> Self::Float;
 
+    /// Single-word multiply-high mapping; may be biased. Zero scale denotes 2^32.
     #[must_use]
     fn to_randi(self, scale: Self::Int, min: Self::Int) -> Self::Int;
 
+    /// Low-level affine conversion: `to_f01() * scale + min`, without range validation.
     #[must_use]
     fn to_randf(self, scale: Self::Float, min: Self::Float) -> Self::Float;
+
+    /// Rejection-sampled integer lanes. Zero scale denotes the full i32 range.
+    fn sample_randi(draw: impl FnMut() -> Self, scale: Self::Int, min: Self::Int) -> Self::Int;
 }
 
-impl WordV for __m128i {
-    type Int = Self;
-    type Float = __m128;
-
-    fn to_f01(self) -> Self::Float {
-        unsafe { simd_f01::u32x4(self) }
-    }
-
-    fn to_randi(self, scale: Self::Int, min: Self::Int) -> Self::Int {
-        const MERGE_MASK: i32 = 0b10001000;
-
-        unsafe {
-            let prod_even = _mm_mul_epu32(self, scale);
-            let res_even = _mm_srli_epi64(prod_even, 32);
-            let v_u32_shifted = _mm_srli_epi64(self, 32);
-            let prod_odd = _mm_mul_epu32(v_u32_shifted, scale);
-            let merged = _mm_castps_si128(_mm_shuffle_ps(
-                _mm_castsi128_ps(res_even),
-                _mm_castsi128_ps(prod_odd),
-                MERGE_MASK,
-            ));
-            let merged = _mm_shuffle_epi32(merged, 0b11_01_10_00);
-            _mm_add_epi32(merged, min)
+// These public safe conversions also accept vectors constructed without an
+// AVX-capable RNG. Array conversion keeps them safe on every x86_64 CPU.
+macro_rules! impl_wordv {
+    ($int:ty, $float:ty, $n:expr) => {
+        impl WordV for $int {
+            type Int = Self;
+            type Float = $float;
+            fn to_f01(self) -> Self::Float {
+                let words: [u32; $n] = unsafe { std::mem::transmute(self) };
+                unsafe { std::mem::transmute(words.map(crate::Word::to_f01)) }
+            }
+            fn to_randi(self, scale: Self::Int, min: Self::Int) -> Self::Int {
+                let words: [u32; $n] = unsafe { std::mem::transmute(self) };
+                let scales: [u32; $n] = unsafe { std::mem::transmute(scale) };
+                let mins: [i32; $n] = unsafe { std::mem::transmute(min) };
+                let result: [i32; $n] = std::array::from_fn(|i| {
+                    let range = if scales[i] == 0 {
+                        1u64 << 32
+                    } else {
+                        scales[i] as u64
+                    };
+                    let offset = ((words[i] as u64 * range) >> 32) as u32;
+                    (mins[i] as u32).wrapping_add(offset) as i32
+                });
+                unsafe { std::mem::transmute(result) }
+            }
+            fn sample_randi(
+                mut draw: impl FnMut() -> Self,
+                scale: Self::Int,
+                min: Self::Int,
+            ) -> Self::Int {
+                use crate::Word;
+                let scales: [u32; $n] = unsafe { std::mem::transmute(scale) };
+                let mins: [i32; $n] = unsafe { std::mem::transmute(min) };
+                let maxs: [i32; $n] = std::array::from_fn(|i| {
+                    let range = if scales[i] == 0 {
+                        1i64 << 32
+                    } else {
+                        scales[i] as i64
+                    };
+                    let max = mins[i] as i64 + range - 1;
+                    i32::try_from(max).expect("integer lane range exceeds i32")
+                });
+                let mut values = [None; $n];
+                while values.iter().any(Option::is_none) {
+                    let words: [u32; $n] = unsafe { std::mem::transmute(draw()) };
+                    for i in 0..$n {
+                        if values[i].is_none() {
+                            values[i] = words[i].try_randi(mins[i], maxs[i]);
+                        }
+                    }
+                }
+                let result = values.map(Option::unwrap);
+                unsafe { std::mem::transmute(result) }
+            }
+            fn to_randf(self, scale: Self::Float, min: Self::Float) -> Self::Float {
+                let values: [f32; $n] = unsafe { std::mem::transmute(self.to_f01()) };
+                let scales: [f32; $n] = unsafe { std::mem::transmute(scale) };
+                let mins: [f32; $n] = unsafe { std::mem::transmute(min) };
+                let result: [f32; $n] = std::array::from_fn(|i| values[i] * scales[i] + mins[i]);
+                unsafe { std::mem::transmute(result) }
+            }
         }
-    }
-
-    fn to_randf(self, scale: Self::Float, min: Self::Float) -> Self::Float {
-        unsafe {
-            _mm_add_ps(_mm_mul_ps(simd_f01::u32x4(self), scale), min)
-        }
-    }
+    };
 }
-
-impl WordV for __m256i {
-    type Int = Self;
-    type Float = __m256;
-
-    fn to_f01(self) -> Self::Float {
-        unsafe { simd_f01::u32x8(self) }
-    }
-
-    fn to_randi(self, scale: Self::Int, min: Self::Int) -> Self::Int {
-        const MERGE_MASK: u8 = 0b10101010;
-
-        unsafe {
-            let prod_even = _mm256_mul_epu32(self, scale);
-            let res_even = _mm256_srli_epi64(prod_even, 32);
-            let v_u32_shifted = _mm256_srli_epi64(self, 32);
-            let prod_odd = _mm256_mul_epu32(v_u32_shifted, scale);
-            let merged = _mm256_mask_blend_epi32(MERGE_MASK, res_even, prod_odd);
-            _mm256_add_epi32(merged, min)
-        }
-    }
-
-    fn to_randf(self, scale: Self::Float, min: Self::Float) -> Self::Float {
-        unsafe {
-            _mm256_add_ps(_mm256_mul_ps(simd_f01::u32x8(self), scale), min)
-        }
-    }
-}
-
-impl WordV for __m512i {
-    type Int = Self;
-    type Float = __m512;
-
-    fn to_f01(self) -> Self::Float {
-        unsafe { simd_f01::u32x16(self) }
-    }
-
-    fn to_randi(self, scale: Self::Int, min: Self::Int) -> Self::Int {
-        const MERGE_MASK: u16 = 0b1010101010101010;
-
-        unsafe {
-            let prod_even = _mm512_mul_epu32(self, scale);
-            let res_even = _mm512_srli_epi64(prod_even, 32);
-            let v_u32_shifted = _mm512_srli_epi64(self, 32);
-            let prod_odd = _mm512_mul_epu32(v_u32_shifted, scale);
-            let merged = _mm512_mask_blend_epi32(MERGE_MASK, res_even, prod_odd);
-            _mm512_add_epi32(merged, min)
-        }
-    }
-
-    fn to_randf(self, scale: Self::Float, min: Self::Float) -> Self::Float {
-        unsafe {
-            _mm512_add_ps(_mm512_mul_ps(simd_f01::u32x16(self), scale), min)
-        }
-    }
-}
+impl_wordv!(__m128i, __m128, 4);
+impl_wordv!(__m256i, __m256, 8);
+impl_wordv!(__m512i, __m512, 16);
 
 pub trait RngV {
     type Word: WordV;
@@ -128,7 +111,7 @@ pub trait RngV {
         scale: <Self::Word as WordV>::Int,
         min: <Self::Word as WordV>::Int,
     ) -> <Self::Word as WordV>::Int {
-        self.nextuv().to_randi(scale, min)
+        Self::Word::sample_randi(|| self.nextuv(), scale, min)
     }
 
     fn randfv(

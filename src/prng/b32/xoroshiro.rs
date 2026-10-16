@@ -112,14 +112,17 @@ pub mod simd {
 
             unsafe {
                 let mult = _mm256_set1_epi32(0x9E3779BBu32 as i32);
-                let result = _mm256_mullo_epi32(s0, mult);
+                let result = _mm256_mullo_epi32(
+                    crate::avx2::rol_epi32(_mm256_mullo_epi32(s0, mult), 5),
+                    _mm256_set1_epi32(5),
+                );
 
                 s1 = _mm256_xor_si256(s1, s0);
                 self.s0 = _mm256_xor_si256(
-                    _mm256_xor_si256(_mm256_rol_epi32(s0, 26), s1),
+                    _mm256_xor_si256(crate::avx2::rol_epi32(s0, 26), s1),
                     _mm256_slli_epi32(s1, 9),
                 );
-                self.s1 = _mm256_rol_epi32(s1, 13);
+                self.s1 = crate::avx2::rol_epi32(s1, 13);
 
                 result
             }
@@ -180,7 +183,10 @@ pub mod simd {
 
             unsafe {
                 let mult = _mm512_set1_epi32(0x9E3779BBu32 as i32);
-                let result = _mm512_mullo_epi32(s0, mult);
+                let result = _mm512_mullo_epi32(
+                    _mm512_rol_epi32(_mm512_mullo_epi32(s0, mult), 5),
+                    _mm512_set1_epi32(5),
+                );
 
                 s1 = _mm512_xor_si512(s1, s0);
                 self.s0 = _mm512_xor_si512(
@@ -202,4 +208,41 @@ mod tests {
     crate::safe_test! { Xoroshiro64Ss }
     #[cfg(all(feature = "simd", target_feature = "avx512f"))]
     crate::unsafe_test! { Xoroshiro64Ssx16 }
+}
+
+#[cfg(all(test, feature = "simd", target_arch = "x86_64"))]
+mod regression {
+    use super::*;
+    use crate::RngV;
+    #[test]
+    fn all_lanes_match_scalar_and_independent_reference() {
+        macro_rules! check {
+            ($ty:ty,$n:expr,$feature:tt) => {
+                if std::is_x86_feature_detected!($feature) {
+                    let mut sg = 42;
+                    let initial: [[u32; 2]; $n] = std::array::from_fn(|_| {
+                        [
+                            crate::test_reference::sm32(&mut sg),
+                            crate::test_reference::sm32(&mut sg),
+                        ]
+                    });
+                    let mut refs = initial;
+                    let mut scalars = std::array::from_fn::<_, $n, _>(|i| Xoroshiro64Ss {
+                        s: initial[i].map(Into::into),
+                    });
+                    let mut vector = unsafe { <$ty>::new(42) };
+                    for _ in 0..1024 {
+                        let words: [u32; $n] = unsafe { std::mem::transmute(vector.nextuv()) };
+                        for (i, word) in words.into_iter().enumerate() {
+                            let expected = crate::test_reference::xoroshiro32(&mut refs[i]);
+                            assert_eq!(word, expected);
+                            assert_eq!(scalars[i].nextu(), expected);
+                        }
+                    }
+                }
+            };
+        }
+        check!(Xoroshiro64Ssx8, 8, "avx2");
+        check!(Xoroshiro64Ssx16, 16, "avx512f");
+    }
 }

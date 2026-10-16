@@ -1,0 +1,3202 @@
+[
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32_new",
+    "args": "seed: u32",
+    "return": "-> *mut Jsf32",
+    "type": "Jsf32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32_free",
+    "args": "ptr: *mut Jsf32",
+    "return": "",
+    "type": "Jsf32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32_next_u32s",
+    "args": "ptr: *mut Jsf32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Jsf32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32_next_f32s",
+    "args": "ptr: *mut Jsf32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Jsf32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32_rand_i32s",
+    "args": "ptr: *mut Jsf32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Jsf32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32_rand_f32s",
+    "args": "ptr: *mut Jsf32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Jsf32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32x16_new",
+    "args": "seed: u32",
+    "return": "-> *mut Jsf32x16",
+    "type": "Jsf32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32x16_free",
+    "args": "ptr: *mut Jsf32x16",
+    "return": "",
+    "type": "Jsf32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32x16_next_u32s",
+    "args": "ptr: *mut Jsf32x16, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Jsf32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32x16_next_f32s",
+    "args": "ptr: *mut Jsf32x16, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Jsf32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32x16_rand_i32s",
+    "args": "ptr: *mut Jsf32x16, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Jsf32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/jsf.rs",
+    "name": "jsf32x16_rand_f32s",
+    "args": "ptr: *mut Jsf32x16, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Jsf32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "mt19937_new",
+    "args": "seed: u32",
+    "return": "-> *mut Mt19937",
+    "type": "Mt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "mt19937_free",
+    "args": "ptr: *mut Mt19937",
+    "return": "",
+    "type": "Mt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "mt19937_next_u32s",
+    "args": "ptr: *mut Mt19937, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Mt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "mt19937_next_f32s",
+    "args": "ptr: *mut Mt19937, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Mt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "mt19937_rand_i32s",
+    "args": "ptr: *mut Mt19937, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Mt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "mt19937_rand_f32s",
+    "args": "ptr: *mut Mt19937, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Mt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt19937_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt19937",
+    "type": "Sfmt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt19937_free",
+    "args": "ptr: *mut Sfmt19937",
+    "return": "",
+    "type": "Sfmt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt19937_next_u32s",
+    "args": "ptr: *mut Sfmt19937, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt19937_next_f32s",
+    "args": "ptr: *mut Sfmt19937, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt19937_rand_i32s",
+    "args": "ptr: *mut Sfmt19937, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt19937_rand_f32s",
+    "args": "ptr: *mut Sfmt19937, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt19937",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt607_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt607",
+    "type": "Sfmt607",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt607_free",
+    "args": "ptr: *mut Sfmt607",
+    "return": "",
+    "type": "Sfmt607",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt607_next_u32s",
+    "args": "ptr: *mut Sfmt607, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt607",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt607_next_f32s",
+    "args": "ptr: *mut Sfmt607, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt607",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt607_rand_i32s",
+    "args": "ptr: *mut Sfmt607, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt607",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt607_rand_f32s",
+    "args": "ptr: *mut Sfmt607, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt607",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt1279_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt1279",
+    "type": "Sfmt1279",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt1279_free",
+    "args": "ptr: *mut Sfmt1279",
+    "return": "",
+    "type": "Sfmt1279",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt1279_next_u32s",
+    "args": "ptr: *mut Sfmt1279, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt1279",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt1279_next_f32s",
+    "args": "ptr: *mut Sfmt1279, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt1279",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt1279_rand_i32s",
+    "args": "ptr: *mut Sfmt1279, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt1279",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt1279_rand_f32s",
+    "args": "ptr: *mut Sfmt1279, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt1279",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt2281_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt2281",
+    "type": "Sfmt2281",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt2281_free",
+    "args": "ptr: *mut Sfmt2281",
+    "return": "",
+    "type": "Sfmt2281",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt2281_next_u32s",
+    "args": "ptr: *mut Sfmt2281, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt2281",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt2281_next_f32s",
+    "args": "ptr: *mut Sfmt2281, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt2281",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt2281_rand_i32s",
+    "args": "ptr: *mut Sfmt2281, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt2281",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt2281_rand_f32s",
+    "args": "ptr: *mut Sfmt2281, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt2281",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt4253_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt4253",
+    "type": "Sfmt4253",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt4253_free",
+    "args": "ptr: *mut Sfmt4253",
+    "return": "",
+    "type": "Sfmt4253",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt4253_next_u32s",
+    "args": "ptr: *mut Sfmt4253, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt4253",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt4253_next_f32s",
+    "args": "ptr: *mut Sfmt4253, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt4253",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt4253_rand_i32s",
+    "args": "ptr: *mut Sfmt4253, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt4253",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt4253_rand_f32s",
+    "args": "ptr: *mut Sfmt4253, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt4253",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt11213_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt11213",
+    "type": "Sfmt11213",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt11213_free",
+    "args": "ptr: *mut Sfmt11213",
+    "return": "",
+    "type": "Sfmt11213",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt11213_next_u32s",
+    "args": "ptr: *mut Sfmt11213, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt11213",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt11213_next_f32s",
+    "args": "ptr: *mut Sfmt11213, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt11213",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt11213_rand_i32s",
+    "args": "ptr: *mut Sfmt11213, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt11213",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt11213_rand_f32s",
+    "args": "ptr: *mut Sfmt11213, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt11213",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt44497_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt44497",
+    "type": "Sfmt44497",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt44497_free",
+    "args": "ptr: *mut Sfmt44497",
+    "return": "",
+    "type": "Sfmt44497",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt44497_next_u32s",
+    "args": "ptr: *mut Sfmt44497, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt44497",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt44497_next_f32s",
+    "args": "ptr: *mut Sfmt44497, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt44497",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt44497_rand_i32s",
+    "args": "ptr: *mut Sfmt44497, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt44497",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt44497_rand_f32s",
+    "args": "ptr: *mut Sfmt44497, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt44497",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt86243_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt86243",
+    "type": "Sfmt86243",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt86243_free",
+    "args": "ptr: *mut Sfmt86243",
+    "return": "",
+    "type": "Sfmt86243",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt86243_next_u32s",
+    "args": "ptr: *mut Sfmt86243, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt86243",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt86243_next_f32s",
+    "args": "ptr: *mut Sfmt86243, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt86243",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt86243_rand_i32s",
+    "args": "ptr: *mut Sfmt86243, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt86243",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt86243_rand_f32s",
+    "args": "ptr: *mut Sfmt86243, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt86243",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt132049_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt132049",
+    "type": "Sfmt132049",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt132049_free",
+    "args": "ptr: *mut Sfmt132049",
+    "return": "",
+    "type": "Sfmt132049",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt132049_next_u32s",
+    "args": "ptr: *mut Sfmt132049, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt132049",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt132049_next_f32s",
+    "args": "ptr: *mut Sfmt132049, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt132049",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt132049_rand_i32s",
+    "args": "ptr: *mut Sfmt132049, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt132049",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt132049_rand_f32s",
+    "args": "ptr: *mut Sfmt132049, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt132049",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt216091_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt216091",
+    "type": "Sfmt216091",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt216091_free",
+    "args": "ptr: *mut Sfmt216091",
+    "return": "",
+    "type": "Sfmt216091",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt216091_next_u32s",
+    "args": "ptr: *mut Sfmt216091, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfmt216091",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt216091_next_f32s",
+    "args": "ptr: *mut Sfmt216091, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfmt216091",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt216091_rand_i32s",
+    "args": "ptr: *mut Sfmt216091, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfmt216091",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/mersenne.rs",
+    "name": "sfmt216091_rand_f32s",
+    "args": "ptr: *mut Sfmt216091, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfmt216091",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32_new",
+    "args": "seed: u32",
+    "return": "-> *mut Pcg32",
+    "type": "Pcg32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32_free",
+    "args": "ptr: *mut Pcg32",
+    "return": "",
+    "type": "Pcg32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32_next_u32s",
+    "args": "ptr: *mut Pcg32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Pcg32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32_next_f32s",
+    "args": "ptr: *mut Pcg32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Pcg32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32_rand_i32s",
+    "args": "ptr: *mut Pcg32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Pcg32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32_rand_f32s",
+    "args": "ptr: *mut Pcg32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Pcg32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32x8_new",
+    "args": "seed: u32",
+    "return": "-> *mut Pcg32x8",
+    "type": "Pcg32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32x8_free",
+    "args": "ptr: *mut Pcg32x8",
+    "return": "",
+    "type": "Pcg32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32x8_next_u32s",
+    "args": "ptr: *mut Pcg32x8, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Pcg32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32x8_next_f32s",
+    "args": "ptr: *mut Pcg32x8, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Pcg32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32x8_rand_i32s",
+    "args": "ptr: *mut Pcg32x8, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Pcg32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/pcg.rs",
+    "name": "pcg32x8_rand_f32s",
+    "args": "ptr: *mut Pcg32x8, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Pcg32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32_new",
+    "args": "seed: u32",
+    "return": "-> *mut Sfc32",
+    "type": "Sfc32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32_free",
+    "args": "ptr: *mut Sfc32",
+    "return": "",
+    "type": "Sfc32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32_next_u32s",
+    "args": "ptr: *mut Sfc32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfc32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32_next_f32s",
+    "args": "ptr: *mut Sfc32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfc32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32_rand_i32s",
+    "args": "ptr: *mut Sfc32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfc32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32_rand_f32s",
+    "args": "ptr: *mut Sfc32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfc32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x4_new",
+    "args": "seed: u32",
+    "return": "-> *mut Sfc32x4",
+    "type": "Sfc32x4",
+    "bits": 32,
+    "lanes": 4,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x4_free",
+    "args": "ptr: *mut Sfc32x4",
+    "return": "",
+    "type": "Sfc32x4",
+    "bits": 32,
+    "lanes": 4,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x4_next_u32s",
+    "args": "ptr: *mut Sfc32x4, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfc32x4",
+    "bits": 32,
+    "lanes": 4,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x4_next_f32s",
+    "args": "ptr: *mut Sfc32x4, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfc32x4",
+    "bits": 32,
+    "lanes": 4,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x4_rand_i32s",
+    "args": "ptr: *mut Sfc32x4, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfc32x4",
+    "bits": 32,
+    "lanes": 4,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x4_rand_f32s",
+    "args": "ptr: *mut Sfc32x4, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfc32x4",
+    "bits": 32,
+    "lanes": 4,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x8_new",
+    "args": "seed: u32",
+    "return": "-> *mut Sfc32x8",
+    "type": "Sfc32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x8_free",
+    "args": "ptr: *mut Sfc32x8",
+    "return": "",
+    "type": "Sfc32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x8_next_u32s",
+    "args": "ptr: *mut Sfc32x8, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfc32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x8_next_f32s",
+    "args": "ptr: *mut Sfc32x8, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfc32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x8_rand_i32s",
+    "args": "ptr: *mut Sfc32x8, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfc32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x8_rand_f32s",
+    "args": "ptr: *mut Sfc32x8, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfc32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x16_new",
+    "args": "seed: u32",
+    "return": "-> *mut Sfc32x16",
+    "type": "Sfc32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x16_free",
+    "args": "ptr: *mut Sfc32x16",
+    "return": "",
+    "type": "Sfc32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x16_next_u32s",
+    "args": "ptr: *mut Sfc32x16, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Sfc32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x16_next_f32s",
+    "args": "ptr: *mut Sfc32x16, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Sfc32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x16_rand_i32s",
+    "args": "ptr: *mut Sfc32x16, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Sfc32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/sfc.rs",
+    "name": "sfc32x16_rand_f32s",
+    "args": "ptr: *mut Sfc32x16, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Sfc32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32_new",
+    "args": "seed: u32",
+    "return": "-> *mut SplitMix32",
+    "type": "SplitMix32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32_free",
+    "args": "ptr: *mut SplitMix32",
+    "return": "",
+    "type": "SplitMix32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32_next_u32s",
+    "args": "ptr: *mut SplitMix32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "SplitMix32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32_next_f32s",
+    "args": "ptr: *mut SplitMix32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "SplitMix32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32_rand_i32s",
+    "args": "ptr: *mut SplitMix32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "SplitMix32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32_rand_f32s",
+    "args": "ptr: *mut SplitMix32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "SplitMix32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32x16_new",
+    "args": "seed: u32",
+    "return": "-> *mut SplitMix32x16",
+    "type": "SplitMix32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32x16_free",
+    "args": "ptr: *mut SplitMix32x16",
+    "return": "",
+    "type": "SplitMix32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/splitmix.rs",
+    "name": "splitmix32x16_next_u32s",
+    "args": "ptr: *mut SplitMix32x16, out: *mut u32, count: usize,",
+    "return": "",
+    "type": "SplitMix32x16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ss_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoroshiro64Ss",
+    "type": "Xoroshiro64Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ss_free",
+    "args": "ptr: *mut Xoroshiro64Ss",
+    "return": "",
+    "type": "Xoroshiro64Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ss_next_u32s",
+    "args": "ptr: *mut Xoroshiro64Ss, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Xoroshiro64Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ss_next_f32s",
+    "args": "ptr: *mut Xoroshiro64Ss, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Xoroshiro64Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ss_rand_i32s",
+    "args": "ptr: *mut Xoroshiro64Ss, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoroshiro64Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ss_rand_f32s",
+    "args": "ptr: *mut Xoroshiro64Ss, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoroshiro64Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx8_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoroshiro64Ssx8",
+    "type": "Xoroshiro64Ssx8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx8_free",
+    "args": "ptr: *mut Xoroshiro64Ssx8",
+    "return": "",
+    "type": "Xoroshiro64Ssx8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx8_next_u32s",
+    "args": "ptr: *mut Xoroshiro64Ssx8, out: *mut u32, count: usize,",
+    "return": "",
+    "type": "Xoroshiro64Ssx8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx8_next_f32s",
+    "args": "ptr: *mut Xoroshiro64Ssx8, out: *mut f32, count: usize,",
+    "return": "",
+    "type": "Xoroshiro64Ssx8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx8_rand_i32s",
+    "args": "ptr: *mut Xoroshiro64Ssx8, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoroshiro64Ssx8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx8_rand_f32s",
+    "args": "ptr: *mut Xoroshiro64Ssx8, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoroshiro64Ssx8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx2"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx16_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoroshiro64Ssx16",
+    "type": "Xoroshiro64Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx16_free",
+    "args": "ptr: *mut Xoroshiro64Ssx16",
+    "return": "",
+    "type": "Xoroshiro64Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx16_next_u32s",
+    "args": "ptr: *mut Xoroshiro64Ssx16, out: *mut u32, count: usize,",
+    "return": "",
+    "type": "Xoroshiro64Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx16_next_f32s",
+    "args": "ptr: *mut Xoroshiro64Ssx16, out: *mut f32, count: usize,",
+    "return": "",
+    "type": "Xoroshiro64Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx16_rand_i32s",
+    "args": "ptr: *mut Xoroshiro64Ssx16, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoroshiro64Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoroshiro.rs",
+    "name": "xoroshiro64ssx16_rand_f32s",
+    "args": "ptr: *mut Xoroshiro64Ssx16, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoroshiro64Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift32_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xorshift32",
+    "type": "Xorshift32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift32_free",
+    "args": "ptr: *mut Xorshift32",
+    "return": "",
+    "type": "Xorshift32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift32_next_u32s",
+    "args": "ptr: *mut Xorshift32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Xorshift32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift32_next_f32s",
+    "args": "ptr: *mut Xorshift32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Xorshift32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift32_rand_i32s",
+    "args": "ptr: *mut Xorshift32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xorshift32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift32_rand_f32s",
+    "args": "ptr: *mut Xorshift32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xorshift32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift128_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xorshift128",
+    "type": "Xorshift128",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift128_free",
+    "args": "ptr: *mut Xorshift128",
+    "return": "",
+    "type": "Xorshift128",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift128_next_u32s",
+    "args": "ptr: *mut Xorshift128, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Xorshift128",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift128_next_f32s",
+    "args": "ptr: *mut Xorshift128, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Xorshift128",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift128_rand_i32s",
+    "args": "ptr: *mut Xorshift128, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xorshift128",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xorshift.rs",
+    "name": "xorshift128_rand_f32s",
+    "args": "ptr: *mut Xorshift128, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xorshift128",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128pp_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoshiro128Pp",
+    "type": "Xoshiro128Pp",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128pp_free",
+    "args": "ptr: *mut Xoshiro128Pp",
+    "return": "",
+    "type": "Xoshiro128Pp",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128pp_next_u32s",
+    "args": "ptr: *mut Xoshiro128Pp, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Xoshiro128Pp",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128pp_next_f32s",
+    "args": "ptr: *mut Xoshiro128Pp, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Xoshiro128Pp",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128pp_rand_i32s",
+    "args": "ptr: *mut Xoshiro128Pp, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoshiro128Pp",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128pp_rand_f32s",
+    "args": "ptr: *mut Xoshiro128Pp, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoshiro128Pp",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ss_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoshiro128Ss",
+    "type": "Xoshiro128Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ss_free",
+    "args": "ptr: *mut Xoshiro128Ss",
+    "return": "",
+    "type": "Xoshiro128Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ss_next_u32s",
+    "args": "ptr: *mut Xoshiro128Ss, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Xoshiro128Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ss_next_f32s",
+    "args": "ptr: *mut Xoshiro128Ss, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Xoshiro128Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ss_rand_i32s",
+    "args": "ptr: *mut Xoshiro128Ss, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoshiro128Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ss_rand_f32s",
+    "args": "ptr: *mut Xoshiro128Ss, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoshiro128Ss",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ppx16_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoshiro128Ppx16",
+    "type": "Xoshiro128Ppx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ppx16_free",
+    "args": "ptr: *mut Xoshiro128Ppx16",
+    "return": "",
+    "type": "Xoshiro128Ppx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ppx16_next_u32s",
+    "args": "ptr: *mut Xoshiro128Ppx16, out: *mut u32, count: usize,",
+    "return": "",
+    "type": "Xoshiro128Ppx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ppx16_next_f32s",
+    "args": "ptr: *mut Xoshiro128Ppx16, out: *mut f32, count: usize,",
+    "return": "",
+    "type": "Xoshiro128Ppx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ppx16_rand_i32s",
+    "args": "ptr: *mut Xoshiro128Ppx16, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoshiro128Ppx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ppx16_rand_f32s",
+    "args": "ptr: *mut Xoshiro128Ppx16, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoshiro128Ppx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ssx16_new",
+    "args": "seed: u32",
+    "return": "-> *mut Xoshiro128Ssx16",
+    "type": "Xoshiro128Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ssx16_free",
+    "args": "ptr: *mut Xoshiro128Ssx16",
+    "return": "",
+    "type": "Xoshiro128Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ssx16_next_u32s",
+    "args": "ptr: *mut Xoshiro128Ssx16, out: *mut u32, count: usize,",
+    "return": "",
+    "type": "Xoshiro128Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ssx16_next_f32s",
+    "args": "ptr: *mut Xoshiro128Ssx16, out: *mut f32, count: usize,",
+    "return": "",
+    "type": "Xoshiro128Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ssx16_rand_i32s",
+    "args": "ptr: *mut Xoshiro128Ssx16, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Xoshiro128Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b32/xoshiro.rs",
+    "name": "xoshiro128ssx16_rand_f32s",
+    "args": "ptr: *mut Xoshiro128Ssx16, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Xoshiro128Ssx16",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64_new",
+    "args": "seed: u64",
+    "return": "-> *mut Biski64",
+    "type": "Biski64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64_free",
+    "args": "ptr: *mut Biski64",
+    "return": "",
+    "type": "Biski64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64_next_u64s",
+    "args": "ptr: *mut Biski64, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Biski64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64_next_f64s",
+    "args": "ptr: *mut Biski64, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Biski64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64_rand_i64s",
+    "args": "ptr: *mut Biski64, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Biski64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64_rand_f64s",
+    "args": "ptr: *mut Biski64, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Biski64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64x8_new",
+    "args": "seed: u64",
+    "return": "-> *mut Biski64x8",
+    "type": "Biski64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64x8_free",
+    "args": "ptr: *mut Biski64x8",
+    "return": "",
+    "type": "Biski64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64x8_next_u64s",
+    "args": "ptr: *mut Biski64x8, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Biski64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64x8_next_f64s",
+    "args": "ptr: *mut Biski64x8, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Biski64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64x8_rand_i64s",
+    "args": "ptr: *mut Biski64x8, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Biski64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/biski.rs",
+    "name": "biski64x8_rand_f64s",
+    "args": "ptr: *mut Biski64x8, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Biski64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64_new",
+    "args": "seed: u64",
+    "return": "-> *mut Cet64",
+    "type": "Cet64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64_free",
+    "args": "ptr: *mut Cet64",
+    "return": "",
+    "type": "Cet64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64_next_u64s",
+    "args": "ptr: *mut Cet64, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Cet64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64_next_f64s",
+    "args": "ptr: *mut Cet64, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Cet64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64_rand_i64s",
+    "args": "ptr: *mut Cet64, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Cet64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64_rand_f64s",
+    "args": "ptr: *mut Cet64, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Cet64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256_new",
+    "args": "seed: u64",
+    "return": "-> *mut Cet256",
+    "type": "Cet256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256_free",
+    "args": "ptr: *mut Cet256",
+    "return": "",
+    "type": "Cet256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256_next_u64s",
+    "args": "ptr: *mut Cet256, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Cet256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256_next_f64s",
+    "args": "ptr: *mut Cet256, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Cet256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256_rand_i64s",
+    "args": "ptr: *mut Cet256, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Cet256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256_rand_f64s",
+    "args": "ptr: *mut Cet256, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Cet256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64x8_new",
+    "args": "seed: u64",
+    "return": "-> *mut Cet64x8",
+    "type": "Cet64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64x8_free",
+    "args": "ptr: *mut Cet64x8",
+    "return": "",
+    "type": "Cet64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet64x8_next_u64s",
+    "args": "ptr: *mut Cet64x8, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Cet64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256x2_new",
+    "args": "seed: u64",
+    "return": "-> *mut Cet256x2",
+    "type": "Cet256x2",
+    "bits": 64,
+    "lanes": 2,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256x2_free",
+    "args": "ptr: *mut Cet256x2",
+    "return": "",
+    "type": "Cet256x2",
+    "bits": 64,
+    "lanes": 2,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/prng/b64/cet.rs",
+    "name": "cet256x2_next_u64s",
+    "args": "ptr: *mut Cet256x2, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Cet256x2",
+    "bits": 64,
+    "lanes": 2,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "mt1993764_new",
+    "args": "seed: u64",
+    "return": "-> *mut Mt1993764",
+    "type": "Mt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "mt1993764_free",
+    "args": "ptr: *mut Mt1993764",
+    "return": "",
+    "type": "Mt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "mt1993764_next_u64s",
+    "args": "ptr: *mut Mt1993764, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Mt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "mt1993764_next_f64s",
+    "args": "ptr: *mut Mt1993764, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Mt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "mt1993764_rand_i64s",
+    "args": "ptr: *mut Mt1993764, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Mt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "mt1993764_rand_f64s",
+    "args": "ptr: *mut Mt1993764, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Mt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "sfmt1993764_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfmt1993764",
+    "type": "Sfmt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "sfmt1993764_free",
+    "args": "ptr: *mut Sfmt1993764",
+    "return": "",
+    "type": "Sfmt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "sfmt1993764_next_u64s",
+    "args": "ptr: *mut Sfmt1993764, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Sfmt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "sfmt1993764_next_f64s",
+    "args": "ptr: *mut Sfmt1993764, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Sfmt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "sfmt1993764_rand_i64s",
+    "args": "ptr: *mut Sfmt1993764, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Sfmt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/mersenne.rs",
+    "name": "sfmt_rand_f64s",
+    "args": "ptr: *mut Sfmt1993764, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Sfmt1993764",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfc64",
+    "type": "Sfc64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64_free",
+    "args": "ptr: *mut Sfc64",
+    "return": "",
+    "type": "Sfc64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64_next_u64s",
+    "args": "ptr: *mut Sfc64, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Sfc64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64_next_f64s",
+    "args": "ptr: *mut Sfc64, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Sfc64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64_rand_i64s",
+    "args": "ptr: *mut Sfc64, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Sfc64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64_rand_f64s",
+    "args": "ptr: *mut Sfc64, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Sfc64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64x8_new",
+    "args": "seed: u64",
+    "return": "-> *mut Sfc64x8",
+    "type": "Sfc64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64x8_free",
+    "args": "ptr: *mut Sfc64x8",
+    "return": "",
+    "type": "Sfc64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/sfc.rs",
+    "name": "sfc64x8_next_u64s",
+    "args": "ptr: *mut Sfc64x8, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Sfc64x8",
+    "bits": 64,
+    "lanes": 8,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/prng/b64/splitmix.rs",
+    "name": "splitmix64_new",
+    "args": "seed: u64",
+    "return": "-> *mut SplitMix64",
+    "type": "SplitMix64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/splitmix.rs",
+    "name": "splitmix64_free",
+    "args": "ptr: *mut SplitMix64",
+    "return": "",
+    "type": "SplitMix64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/splitmix.rs",
+    "name": "splitmix64_next_u64s",
+    "args": "ptr: *mut SplitMix64, out: *mut u64, count: usize",
+    "return": "",
+    "type": "SplitMix64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/splitmix.rs",
+    "name": "splitmix64_next_f64s",
+    "args": "ptr: *mut SplitMix64, out: *mut f64, count: usize",
+    "return": "",
+    "type": "SplitMix64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/splitmix.rs",
+    "name": "splitmix64_rand_i64s",
+    "args": "ptr: *mut SplitMix64, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "SplitMix64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/splitmix.rs",
+    "name": "splitmix64_rand_f64s",
+    "args": "ptr: *mut SplitMix64, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "SplitMix64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/twisted_gfsr.rs",
+    "name": "twisted_gfsr_new",
+    "args": "seed: u64",
+    "return": "-> *mut TwistedGFSR",
+    "type": "TwistedGFSR",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/twisted_gfsr.rs",
+    "name": "twisted_gfsr_free",
+    "args": "ptr: *mut TwistedGFSR",
+    "return": "",
+    "type": "TwistedGFSR",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/twisted_gfsr.rs",
+    "name": "twisted_gfsr_next_u64s",
+    "args": "ptr: *mut TwistedGFSR, out: *mut u64, count: usize",
+    "return": "",
+    "type": "TwistedGFSR",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/twisted_gfsr.rs",
+    "name": "twisted_gfsr_next_f64s",
+    "args": "ptr: *mut TwistedGFSR, out: *mut f64, count: usize",
+    "return": "",
+    "type": "TwistedGFSR",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/twisted_gfsr.rs",
+    "name": "twisted_gfsr_rand_i64s",
+    "args": "ptr: *mut TwistedGFSR, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "TwistedGFSR",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/twisted_gfsr.rs",
+    "name": "twisted_gfsr_rand_f64s",
+    "args": "ptr: *mut TwistedGFSR, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "TwistedGFSR",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128pp_new",
+    "args": "seed: u64",
+    "return": "-> *mut Xoroshiro128Pp",
+    "type": "Xoroshiro128Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128pp_free",
+    "args": "ptr: *mut Xoroshiro128Pp",
+    "return": "",
+    "type": "Xoroshiro128Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128pp_next_u64s",
+    "args": "ptr: *mut Xoroshiro128Pp, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Xoroshiro128Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128pp_next_f64s",
+    "args": "ptr: *mut Xoroshiro128Pp, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Xoroshiro128Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128pp_rand_i64s",
+    "args": "ptr: *mut Xoroshiro128Pp, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Xoroshiro128Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128pp_rand_f64s",
+    "args": "ptr: *mut Xoroshiro128Pp, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Xoroshiro128Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128ss_new",
+    "args": "seed: u64",
+    "return": "-> *mut Xoroshiro128Ss",
+    "type": "Xoroshiro128Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128ss_free",
+    "args": "ptr: *mut Xoroshiro128Ss",
+    "return": "",
+    "type": "Xoroshiro128Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128ss_next_u64s",
+    "args": "ptr: *mut Xoroshiro128Ss, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Xoroshiro128Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128ss_next_f64s",
+    "args": "ptr: *mut Xoroshiro128Ss, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Xoroshiro128Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128ss_rand_i64s",
+    "args": "ptr: *mut Xoroshiro128Ss, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Xoroshiro128Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoroshiro.rs",
+    "name": "xoroshiro128ss_rand_f64s",
+    "args": "ptr: *mut Xoroshiro128Ss, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Xoroshiro128Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xorshift.rs",
+    "name": "xorshift64_new",
+    "args": "seed: u64",
+    "return": "-> *mut Xorshift64",
+    "type": "Xorshift64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xorshift.rs",
+    "name": "xorshift64_free",
+    "args": "ptr: *mut Xorshift64",
+    "return": "",
+    "type": "Xorshift64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xorshift.rs",
+    "name": "xorshift64_next_u64s",
+    "args": "ptr: *mut Xorshift64, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Xorshift64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xorshift.rs",
+    "name": "xorshift64_next_f64s",
+    "args": "ptr: *mut Xorshift64, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Xorshift64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xorshift.rs",
+    "name": "xorshift64_rand_i64s",
+    "args": "ptr: *mut Xorshift64, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Xorshift64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xorshift.rs",
+    "name": "xorshift64_rand_f64s",
+    "args": "ptr: *mut Xorshift64, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Xorshift64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256pp_new",
+    "args": "seed: u64",
+    "return": "-> *mut Xoshiro256Pp",
+    "type": "Xoshiro256Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256pp_free",
+    "args": "ptr: *mut Xoshiro256Pp",
+    "return": "",
+    "type": "Xoshiro256Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256pp_next_u64s",
+    "args": "ptr: *mut Xoshiro256Pp, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Xoshiro256Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256pp_next_f64s",
+    "args": "ptr: *mut Xoshiro256Pp, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Xoshiro256Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256pp_rand_i64s",
+    "args": "ptr: *mut Xoshiro256Pp, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Xoshiro256Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256pp_rand_f64s",
+    "args": "ptr: *mut Xoshiro256Pp, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Xoshiro256Pp",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ssx2_new",
+    "args": "seed: u64",
+    "return": "-> *mut Xoshiro256Ssx2",
+    "type": "Xoshiro256Ssx2",
+    "bits": 64,
+    "lanes": 2,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ssx2_free",
+    "args": "ptr: *mut Xoshiro256Ssx2",
+    "return": "",
+    "type": "Xoshiro256Ssx2",
+    "bits": 64,
+    "lanes": 2,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ssx2_next_u64s",
+    "args": "ptr: *mut Xoshiro256Ssx2, out: *mut u64, count: usize,",
+    "return": "",
+    "type": "Xoshiro256Ssx2",
+    "bits": 64,
+    "lanes": 2,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ss_new",
+    "args": "seed: u64",
+    "return": "-> *mut Xoshiro256Ss",
+    "type": "Xoshiro256Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ss_free",
+    "args": "ptr: *mut Xoshiro256Ss",
+    "return": "",
+    "type": "Xoshiro256Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ss_next_u64s",
+    "args": "ptr: *mut Xoshiro256Ss, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Xoshiro256Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ss_next_f64s",
+    "args": "ptr: *mut Xoshiro256Ss, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Xoshiro256Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ss_rand_i64s",
+    "args": "ptr: *mut Xoshiro256Ss, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Xoshiro256Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/prng/b64/xoshiro.rs",
+    "name": "xoshiro256ss_rand_f64s",
+    "args": "ptr: *mut Xoshiro256Ss, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Xoshiro256Ss",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32_new",
+    "args": "seed: u32",
+    "return": "-> *mut Philox32",
+    "type": "Philox32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32_free",
+    "args": "ptr: *mut Philox32",
+    "return": "",
+    "type": "Philox32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32_next_u32s",
+    "args": "ptr: *mut Philox32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Philox32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32_next_f32s",
+    "args": "ptr: *mut Philox32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Philox32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32_rand_i32s",
+    "args": "ptr: *mut Philox32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Philox32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32_rand_f32s",
+    "args": "ptr: *mut Philox32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Philox32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32x4x4_new",
+    "args": "seed: u32",
+    "return": "-> *mut Philox32x4x4",
+    "type": "Philox32x4x4",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32x4x4_free",
+    "args": "ptr: *mut Philox32x4x4",
+    "return": "",
+    "type": "Philox32x4x4",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32x4x4_next_u32s",
+    "args": "ptr: *mut Philox32x4x4, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Philox32x4x4",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32x4x4_next_f32s",
+    "args": "ptr: *mut Philox32x4x4, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Philox32x4x4",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32x4x4_rand_i32s",
+    "args": "ptr: *mut Philox32x4x4, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Philox32x4x4",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/philox.rs",
+    "name": "philox32x4x4_rand_f32s",
+    "args": "ptr: *mut Philox32x4x4, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Philox32x4x4",
+    "bits": 32,
+    "lanes": 16,
+    "feature": "avx512f"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32_new",
+    "args": "seed: u32",
+    "return": "-> *mut Squares32",
+    "type": "Squares32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32_free",
+    "args": "ptr: *mut Squares32",
+    "return": "",
+    "type": "Squares32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32_next_u32s",
+    "args": "ptr: *mut Squares32, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Squares32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32_next_f32s",
+    "args": "ptr: *mut Squares32, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Squares32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32_rand_i32s",
+    "args": "ptr: *mut Squares32, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Squares32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32_rand_f32s",
+    "args": "ptr: *mut Squares32, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Squares32",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32x8_new",
+    "args": "seed: u32",
+    "return": "-> *mut Squares32x8",
+    "type": "Squares32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32x8_free",
+    "args": "ptr: *mut Squares32x8",
+    "return": "",
+    "type": "Squares32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32x8_next_u32s",
+    "args": "ptr: *mut Squares32x8, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Squares32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32x8_next_f32s",
+    "args": "ptr: *mut Squares32x8, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Squares32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32x8_rand_i32s",
+    "args": "ptr: *mut Squares32x8, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Squares32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/squares.rs",
+    "name": "squares32x8_rand_f32s",
+    "args": "ptr: *mut Squares32x8, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Squares32x8",
+    "bits": 32,
+    "lanes": 8,
+    "feature": "avx512dq"
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x4_new",
+    "args": "seed: u32",
+    "return": "-> *mut Threefry32x4",
+    "type": "Threefry32x4",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x4_free",
+    "args": "ptr: *mut Threefry32x4",
+    "return": "",
+    "type": "Threefry32x4",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x4_next_u32s",
+    "args": "ptr: *mut Threefry32x4, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Threefry32x4",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x4_next_f32s",
+    "args": "ptr: *mut Threefry32x4, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Threefry32x4",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x4_rand_i32s",
+    "args": "ptr: *mut Threefry32x4, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Threefry32x4",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x4_rand_f32s",
+    "args": "ptr: *mut Threefry32x4, out: *mut f32, count: usize, min: f32, max: f32,",
+    "return": "",
+    "type": "Threefry32x4",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x2_new",
+    "args": "seed: u32",
+    "return": "-> *mut Threefry32x2",
+    "type": "Threefry32x2",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x2_free",
+    "args": "ptr: *mut Threefry32x2",
+    "return": "",
+    "type": "Threefry32x2",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x2_next_u32s",
+    "args": "ptr: *mut Threefry32x2, out: *mut u32, count: usize",
+    "return": "",
+    "type": "Threefry32x2",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x2_next_f32s",
+    "args": "ptr: *mut Threefry32x2, out: *mut f32, count: usize",
+    "return": "",
+    "type": "Threefry32x2",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b32/threefry.rs",
+    "name": "threefry32x2_rand_i32s",
+    "args": "ptr: *mut Threefry32x2, out: *mut i32, count: usize, min: i32, max: i32,",
+    "return": "",
+    "type": "Threefry32x2",
+    "bits": 32,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/philox.rs",
+    "name": "philox64_new",
+    "args": "seed: u64",
+    "return": "-> *mut Philox64",
+    "type": "Philox64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/philox.rs",
+    "name": "philox64_free",
+    "args": "ptr: *mut Philox64",
+    "return": "",
+    "type": "Philox64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/philox.rs",
+    "name": "philox64_next_u64s",
+    "args": "ptr: *mut Philox64, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Philox64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/philox.rs",
+    "name": "philox64_next_f64s",
+    "args": "ptr: *mut Philox64, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Philox64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/philox.rs",
+    "name": "philox64_rand_i64s",
+    "args": "ptr: *mut Philox64, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Philox64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/philox.rs",
+    "name": "philox64_rand_f64s",
+    "args": "ptr: *mut Philox64, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Philox64",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/threefish.rs",
+    "name": "threefish256_new",
+    "args": "seed: u64",
+    "return": "-> *mut Threefish256",
+    "type": "Threefish256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/threefish.rs",
+    "name": "threefish256_free",
+    "args": "ptr: *mut Threefish256",
+    "return": "",
+    "type": "Threefish256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/threefish.rs",
+    "name": "threefish256_next_u64s",
+    "args": "ptr: *mut Threefish256, out: *mut u64, count: usize",
+    "return": "",
+    "type": "Threefish256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/threefish.rs",
+    "name": "threefish256_next_f64s",
+    "args": "ptr: *mut Threefish256, out: *mut f64, count: usize",
+    "return": "",
+    "type": "Threefish256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/threefish.rs",
+    "name": "threefish256_rand_i64s",
+    "args": "ptr: *mut Threefish256, out: *mut i64, count: usize, min: i64, max: i64,",
+    "return": "",
+    "type": "Threefish256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  },
+  {
+    "file": "src/cabi/cbrng/b64/threefish.rs",
+    "name": "threefish256_rand_f64s",
+    "args": "ptr: *mut Threefish256, out: *mut f64, count: usize, min: f64, max: f64,",
+    "return": "",
+    "type": "Threefish256",
+    "bits": 64,
+    "lanes": 1,
+    "feature": null
+  }
+]

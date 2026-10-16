@@ -53,65 +53,24 @@ impl Philox32 {
     /// Computes Philox output from counter and key values (pure function).
     #[inline(always)]
     pub(crate) fn compute(c: [wu32; 4], k: [wu32; 2]) -> [wu32; 4] {
-        let mut x = c;
-        let mut key = k;
-
-        const M0: u64 = 0xD2511F53;
-        const M1: u64 = 0xCD9E8D57;
-        const W0: u32 = 0x9E3779B9;
-        const W1: u32 = 0xBB67AE85;
-
-        macro_rules! step {
-            () => {
-                step!(fin);
-
-                key[0] *= W0;
-                key[1] *= W1;
-            };
-            (fin) => {
-                let prod0 = x[0].cast::<u64>() * M0;
-                let hi0 = (prod0 >> 32).cast::<u32>();
-                let lo0 = prod0.cast::<u32>();
-
-                let prod1 = x[2].cast::<u64>() * M1;
-                let hi1 = (prod1 >> 32).cast::<u32>();
-                let lo1 = prod1.cast::<u32>();
-
-                x[0] = hi1 ^ x[1] ^ key[0];
-                x[1] = lo1;
-                x[2] = hi0 ^ x[3] ^ key[1];
-                x[3] = lo0;
-
-                key[0] *= W0;
-                key[1] *= W1;
-
-                let prod0 = x[0].cast::<u64>() * M0;
-                let hi0 = (prod0 >> 32).cast::<u32>();
-                let lo0 = prod0.cast::<u32>();
-
-                let prod1 = x[2].cast::<u64>() * M1;
-                let hi1 = (prod1 >> 32).cast::<u32>();
-                let lo1 = prod1.cast::<u32>();
-
-                x[0] = hi1 ^ x[1] ^ key[0];
-                x[1] = lo1;
-                x[2] = hi0 ^ x[3] ^ key[1];
-                x[3] = lo0;
-            };
+        // Random123 Philox4x32-10: nine key bumps between ten rounds.
+        let mut x = c.map(|v| *v);
+        let mut key = k.map(|v| *v);
+        for round in 0..10 {
+            let p0 = x[0] as u64 * 0xD2511F53;
+            let p1 = x[2] as u64 * 0xCD9E8D57;
+            x = [
+                (p1 >> 32) as u32 ^ x[1] ^ key[0],
+                p1 as u32,
+                (p0 >> 32) as u32 ^ x[3] ^ key[1],
+                p0 as u32,
+            ];
+            if round != 9 {
+                key[0] = key[0].wrapping_add(0x9E3779B9);
+                key[1] = key[1].wrapping_add(0xBB67AE85);
+            }
         }
-
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!(fin);
-
-        x
+        x.map(Into::into)
     }
 
     /// Generates the next block of 4 random `u32` values in one call.
@@ -143,18 +102,6 @@ crate::_internal::impl_ring_rng32!(Philox32, 4, next_raw);
 #[cfg(feature = "simd")]
 #[allow(non_upper_case_globals)]
 pub const PHILOX32x16: usize = 16;
-#[cfg(feature = "simd")]
-#[allow(non_upper_case_globals)]
-pub const PHILOX32x4x4_PAR_CHUNK: usize = 131_072;
-#[cfg(feature = "simd")]
-#[allow(non_upper_case_globals)]
-pub const PHILOX32x4x4_CHUNK_RATIO: u128 = (PHILOX32x4x4_PAR_CHUNK / PHILOX32x16) as u128;
-#[cfg(feature = "simd")]
-#[allow(non_upper_case_globals)]
-pub const PHILOX32x4x4_SHIFT: u128 = PHILOX32x4x4_CHUNK_RATIO.trailing_zeros() as u128;
-#[cfg(feature = "simd")]
-#[allow(non_upper_case_globals)]
-pub const PHILOX32x16_SHIFT: usize = PHILOX32x16.trailing_zeros() as usize;
 
 /// A Philox 4x32x4 random number generator.
 ///
@@ -207,45 +154,16 @@ impl Philox32x4x4 {
 
     #[target_feature(enable = "avx512f")]
     pub(crate) fn compute(&mut self) -> [u32; PHILOX32x16] {
-        let mut x = self.c;
-        let mut key = self.k;
-        let m = _mm512_set1_epi64(0xCD9E8D57_D2511F53u64 as i64);
-        let w = _mm512_set1_epi64(0xBB67AE85_9E3779B9u64 as i64);
-
-        macro_rules! step {
-            () => {
-                step!(fin);
-
-                // key += w
-                key = _mm512_add_epi32(key, w);
-            };
-            (fin) => {
-                // x0 * M0, x2 * M1 = [lo0, hi0, lo1, hi1]
-                let prod = _mm512_mul_epu32(x, m);
-
-                // shuffle -> [hi1, lo1, hi0, lo0]
-                let shuf = _mm512_shuffle_epi32(prod, 0x1B);
-
-                // x >> 32 -> [x1, 0, x3, 0]
-                let x_shift = _mm512_srli_epi64(x, 32);
-
-                // x ^ x_shift ^ key
-                x = _mm512_xor_epi32(shuf, _mm512_xor_epi32(x_shift, key));
-            };
+        let counters: [u32; 16] = unsafe { std::mem::transmute(self.c) };
+        let keys: [u32; 16] = unsafe { std::mem::transmute(self.k) };
+        let mut out = [0u32; 16];
+        for lane in 0..4 {
+            let base = lane * 4;
+            let c = std::array::from_fn(|i| wrap!(counters[base + i]));
+            let k = [wrap!(keys[base]), wrap!(keys[base + 2])];
+            out[base..base + 4].copy_from_slice(&Philox32::compute(c, k).map(|v| *v));
         }
-
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!();
-        step!(fin);
-
-        unsafe { std::mem::transmute(x) }
+        out
     }
 
     /// Generates the next block of random numbers.
@@ -295,9 +213,7 @@ impl Philox32x4x4 {
     /// The caller must ensure the CPU supports the `avx512f` target feature.
     #[target_feature(enable = "avx512f")]
     pub fn randi(&mut self, min: i32, max: i32) -> [i32; PHILOX32x16] {
-        let range = (max as i64 - min as i64 + 1) as u64;
-        self.nextu()
-            .map(|x| ((x as u64 * range) >> 32) as i32 + min)
+        crate::rng::array_randi(|| self.nextu(), min, max)
     }
 
     /// Generates a random `f32` value in the range [min, max).
@@ -307,8 +223,7 @@ impl Philox32x4x4 {
     /// The caller must ensure the CPU supports the `avx512f` target feature.
     #[target_feature(enable = "avx512f")]
     pub fn randf(&mut self, min: f32, max: f32) -> [f32; PHILOX32x16] {
-        let range = max - min;
-        self.nextu().map(|x| u2f_01!(f32, 32, x) * range + min)
+        self.nextu().map(|x| crate::Word::to_randf(x, min, max))
     }
 }
 
@@ -318,5 +233,53 @@ mod tests {
 
     crate::safe_test! { Philox32 }
     #[cfg(all(feature = "simd", target_feature = "avx512f"))]
-    crate::unsafe_test! { Philox32x4x4 }
+    crate::unsafe_test! { nextu, nextf; Philox32x4x4 }
+}
+
+#[cfg(test)]
+mod regression {
+    use super::*;
+    #[test]
+    fn random123_known_answer_and_counter_carry() {
+        assert_eq!(
+            Philox32::compute(wrap![0;4], wrap![0;2]).map(|v| *v),
+            [0x6627e8d5, 0xe169c58d, 0xbc57ac4c, 0x9b00dbd8]
+        );
+        let mut r = Philox32::new(0);
+        r.c = wrap![u32::MAX, u32::MAX, u32::MAX, 7];
+        r.next_raw();
+        assert_eq!(r.c, wrap![0, 0, 0, 8]);
+    }
+    #[cfg(all(feature = "simd", target_arch = "x86_64"))]
+    #[test]
+    fn all_four_streams_match_scalar_and_reference_at_carry() {
+        if !std::is_x86_feature_detected!("avx512f") {
+            return;
+        }
+        unsafe {
+            let mut r = Philox32x4x4::new(42);
+            let mut counters: [u32; 16] = std::mem::transmute(r.c);
+            let keys: [u32; 16] = std::mem::transmute(r.k);
+            for lane in 0..4 {
+                counters[lane * 4..lane * 4 + 3].fill(u32::MAX);
+            }
+            r.c = std::mem::transmute(counters);
+            let mut scalars = std::array::from_fn::<_, 4, _>(|i| Philox32 {
+                c: std::array::from_fn(|j| wrap!(counters[i * 4 + j])),
+                k: wrap![keys[i * 4], keys[i * 4 + 2]],
+                buf: wrap![0;4],
+                pos: wrap!(4),
+            });
+            for _ in 0..100 {
+                let output = r.nextu();
+                for lane in 0..4 {
+                    let scalar = &mut scalars[lane];
+                    let expected =
+                        crate::test_reference::philox(scalar.c.map(|x| *x), scalar.k.map(|x| *x));
+                    assert_eq!(&output[lane * 4..lane * 4 + 4], &expected);
+                    assert_eq!(scalar.next_raw().map(|x| *x), expected);
+                }
+            }
+        }
+    }
 }

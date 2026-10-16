@@ -24,8 +24,9 @@ impl Xorshift64 {
     /// Creates a new `Xorshift64` instance with the given seed.
     pub const fn new(seed: u64) -> Self {
         let mut seedgen = SplitMix64::new(seed);
+        let state = seedgen.nextu_const();
         Self {
-            a: wrap!(seedgen.nextu_const()),
+            a: wrap!(if state == 0 { 1 } else { state }),
         }
     }
 }

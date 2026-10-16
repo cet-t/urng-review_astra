@@ -115,6 +115,7 @@ pub mod simd {
 
     impl Xorshift32x8 {
         pub fn new(seed: u32) -> Self {
+            assert!(std::is_x86_feature_detected!("avx2"), "AVX2 required");
             let mut sm = SplitMix32::new(seed);
 
             let mut a = [0u32; XORSHIFT32X8];
@@ -124,7 +125,7 @@ pub mod simd {
 
             unsafe {
                 Self {
-                    a: _mm256_loadu_epi32(a.as_ptr() as _),
+                    a: crate::avx2::loadu_epi32(a.as_ptr() as _),
                 }
             }
         }

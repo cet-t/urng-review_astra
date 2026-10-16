@@ -20,7 +20,7 @@ pub struct Xoroshiro128Pp {
 impl Xoroshiro128Pp {
     /// Creates a new `Xoroshiro128Pp` instance with the given seed.
     pub const fn new(seed: u64) -> Self {
-        let mut seedgen = SplitMix64::new(seed | 1);
+        let mut seedgen = SplitMix64::new(seed);
         Self {
             s: wrap![seedgen.nextu_const(), seedgen.nextu_const()],
         }
@@ -55,27 +55,17 @@ impl Xoroshiro128Pp {
     pub fn long_jump(&mut self) {
         const LONG_JUMP: [u64; 2] = [0x360fd5f2cf8d5d99, 0x9c6e6877736c46e3];
 
-        macro_rules! long_jump {
-            ($i:expr, $s:ident) => {
-                for i in 0..LONG_JUMP.len() {
-                    // TODO: unrolling
-                    for b in 0..64 {
-                        if (LONG_JUMP[i] & (1 << b)) != 0 {
-                            $s[0] ^= self.s[0];
-                            $s[1] ^= self.s[1];
-                        }
-                        let _ = self.nextu();
-                    }
-
-                    self.s = $s;
+        let mut accumulated = wrap![0; 2];
+        for coefficient in LONG_JUMP {
+            for bit in 0..64 {
+                if coefficient & (1u64 << bit) != 0 {
+                    accumulated[0] ^= self.s[0];
+                    accumulated[1] ^= self.s[1];
                 }
-            };
+                let _ = self.nextu();
+            }
         }
-
-        let mut s = wrap![0; 2];
-        long_jump!(0, s);
-        long_jump!(1, s);
-        self.s = s;
+        self.s = accumulated;
     }
 }
 
@@ -85,11 +75,10 @@ impl Rng for Xoroshiro128Pp {
     #[inline]
     fn nextu(&mut self) -> Self::Word {
         let s = self.s;
-        let result = s[0] + s[1];
-
-        self.s[0] = s[1] ^ s[0];
-        self.s[1] = self.s[1] ^ s[0].rotate_left(24) ^ (self.s[1] << 16);
-        self.s[1] = self.s[1].rotate_left(37);
+        let result = (s[0] + s[1]).rotate_left(17) + s[0];
+        let mixed = s[1] ^ s[0];
+        self.s[0] = s[0].rotate_left(49) ^ mixed ^ (mixed << 21);
+        self.s[1] = mixed.rotate_left(28);
 
         *result.raw()
     }
@@ -148,26 +137,17 @@ impl Xoroshiro128Ss {
     pub fn long_jump(&mut self) {
         const LONG_JUMP: [u64; 2] = [0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1];
 
-        macro_rules! long_jump {
-            ($i:expr, $s:ident) => {
-                for i in 0..LONG_JUMP.len() {
-                    for b in 0..64 {
-                        if (LONG_JUMP[i] & (1 << b)) != 0 {
-                            $s[0] ^= self.s[0];
-                            $s[1] ^= self.s[1];
-                        }
-                        let _ = self.nextu();
-                    }
-
-                    self.s = $s;
+        let mut accumulated = wrap![0; 2];
+        for coefficient in LONG_JUMP {
+            for bit in 0..64 {
+                if coefficient & (1u64 << bit) != 0 {
+                    accumulated[0] ^= self.s[0];
+                    accumulated[1] ^= self.s[1];
                 }
-            };
+                let _ = self.nextu();
+            }
         }
-
-        let mut s = wrap![0; 2];
-        long_jump!(0, s);
-        long_jump!(1, s);
-        self.s = s;
+        self.s = accumulated;
     }
 }
 

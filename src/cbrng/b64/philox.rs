@@ -126,7 +126,7 @@ impl Philox4x64 {
             c: wrap![3, 2, 1, 0],
             k: wrap![seedgen.nextu_const(), seedgen.nextu_const()],
             buf: wrap![0; 4],
-            pos: wrap!(2),
+            pos: wrap!(4),
         }
     }
 
@@ -203,6 +203,33 @@ mod tests {
     use super::*;
 
     use crate::rng::Rng;
+
+    #[test]
+    fn random123_known_answers() {
+        // https://github.com/DEShawResearch/random123/blob/main/tests/kat_vectors
+        assert_eq!(
+            Philox64::compute(wrap![0;2], wrap![0;2]).map(|x| *x),
+            [0xca00a0459843d731, 0x66c24222c9a845b5]
+        );
+        assert_eq!(
+            Philox4x64::compute(wrap![0;4], wrap![0;2]).map(|x| *x),
+            [
+                0x16554d9eca36314c,
+                0xdb20fe9d672d0fdc,
+                0xd7e772cee186176b,
+                0x7e68b68aec7ba23b
+            ]
+        );
+        assert_eq!(
+            Philox4x64::compute(wrap![u64::MAX;4], wrap![u64::MAX;2]).map(|x| *x),
+            [
+                0x87b092c3013fe90b,
+                0x438c3c67be8d0224,
+                0x9cc7d7c69cd777b6,
+                0xa09caebf594f0ba0
+            ]
+        );
+    }
 
     crate::safe_test! {
         Philox64,

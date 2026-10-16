@@ -1,144 +1,225 @@
-use std::slice::from_raw_parts_mut;
+//! C ABI exports backed by the shared buffered stream. See [`crate::cabi`].
+use crate::cabi::stream;
+use crate::*;
 
-use crate::prng::b64::{Mt1993764, Sfmt1993764};
-use crate::rng::Rng;
-
-/// Creates a new heap-allocated `Mt1993764` and returns a raw pointer to it.
-/// The caller is responsible for freeing it with [`mt1993764_free`].
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn mt1993764_new(seed: u64) -> *mut Mt1993764 {
-    Box::into_raw(Box::new(Mt1993764::new(seed)))
+    stream::new::<_, u64, 1>(Mt1993764::new(seed))
 }
-/// Frees a `Mt1993764` instance previously created by [`mt1993764_new`].
-/// Does nothing if `ptr` is null.
+
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn mt1993764_free(ptr: *mut Mt1993764) {
-    if !ptr.is_null() {
-        unsafe { drop(Box::from_raw(ptr)) };
-    }
+pub unsafe extern "C" fn mt1993764_free(ptr: *mut Mt1993764) {
+    unsafe { stream::free::<Mt1993764, u64, 1>(ptr) }
 }
-/// Fills `out[0..count]` with raw `u64` random values.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn mt1993764_next_u64s(ptr: *mut Mt1993764, out: *mut u64, count: usize) {
-    if count == 0 {
-        return;
-    }
+pub unsafe extern "C" fn mt1993764_next_u64s(ptr: *mut Mt1993764, out: *mut u64, count: usize) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Mt1993764::new, |r| r.nextu());
-    }
-}
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[0, 1)`.
-#[unsafe(no_mangle)]
-pub extern "C" fn mt1993764_next_f64s(ptr: *mut Mt1993764, out: *mut f64, count: usize) {
-    unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Mt1993764::new, |r| r.nextf());
-    }
-}
-/// Fills `out[0..count]` with `i64` values uniformly distributed in `[min, max]`.
-#[unsafe(no_mangle)]
-pub extern "C" fn mt1993764_rand_i64s(
-    ptr: *mut Mt1993764,
-    out: *mut i64,
-    count: usize,
-    min: i64,
-    max: i64,
-) {
-    unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Mt1993764::new, |r| {
-            r.randi(min, max)
-        });
-    }
-}
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[min, max)`.
-#[unsafe(no_mangle)]
-pub extern "C" fn mt1993764_rand_f64s(
-    ptr: *mut Mt1993764,
-    out: *mut f64,
-    count: usize,
-    min: f64,
-    max: f64,
-) {
-    unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Mt1993764::new, |r| {
-            r.randf(min, max)
-        });
+        stream::fill::<Mt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
 
-/// Creates a new heap-allocated `Sfmt1993764` and returns a raw pointer to it.
-/// The caller is responsible for freeing it with [`sfmt1993764_free`].
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn sfmt1993764_new(seed: u64) -> *mut Sfmt1993764 {
-    Box::into_raw(Box::new(Sfmt1993764::new(seed)))
-}
-/// Frees a `Sfmt1993764` instance previously created by [`sfmt1993764_new`].
-/// Does nothing if `ptr` is null.
-#[unsafe(no_mangle)]
-pub extern "C" fn sfmt1993764_free(ptr: *mut Sfmt1993764) {
-    if !ptr.is_null() {
-        unsafe { drop(Box::from_raw(ptr)) };
+pub unsafe extern "C" fn mt1993764_next_f64s(ptr: *mut Mt1993764, out: *mut f64, count: usize) {
+    unsafe {
+        stream::fill::<Mt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
-/// Fills `out[0..count]` with raw `u64` random values.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn sfmt1993764_next_u64s(ptr: *mut Sfmt1993764, out: *mut u64, count: usize) {
-    if count == 0 {
+pub unsafe extern "C" fn mt1993764_rand_i64s(
+    ptr: *mut Mt1993764,
+    out: *mut i64,
+    count: usize,
+    min: i64,
+    max: i64,
+) {
+    if min > max {
         return;
     }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Sfmt1993764::new, |r| r.nextu());
+        stream::fill::<Mt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[0, 1)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn sfmt1993764_next_f64s(ptr: *mut Sfmt1993764, out: *mut f64, count: usize) {
+pub unsafe extern "C" fn mt1993764_rand_f64s(
+    ptr: *mut Mt1993764,
+    out: *mut f64,
+    count: usize,
+    min: f64,
+    max: f64,
+) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Sfmt1993764::new, |r| r.nextf());
+        stream::fill::<Mt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `i64` values uniformly distributed in `[min, max]`.
+
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
-pub extern "C" fn sfmt1993764_rand_i64s(
+pub extern "C" fn sfmt1993764_new(seed: u64) -> *mut Sfmt1993764 {
+    stream::new::<_, u64, 1>(Sfmt1993764::new(seed))
+}
+
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sfmt1993764_free(ptr: *mut Sfmt1993764) {
+    unsafe { stream::free::<Sfmt1993764, u64, 1>(ptr) }
+}
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sfmt1993764_next_u64s(ptr: *mut Sfmt1993764, out: *mut u64, count: usize) {
+    unsafe {
+        stream::fill::<Sfmt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
+    }
+}
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sfmt1993764_next_f64s(ptr: *mut Sfmt1993764, out: *mut f64, count: usize) {
+    unsafe {
+        stream::fill::<Sfmt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
+    }
+}
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sfmt1993764_rand_i64s(
     ptr: *mut Sfmt1993764,
     out: *mut i64,
     count: usize,
     min: i64,
     max: i64,
 ) {
+    if min > max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Sfmt1993764::new, |r| {
-            r.randi(min, max)
-        });
+        stream::fill::<Sfmt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
-/// Fills `out[0..count]` with `f64` values uniformly distributed in `[min, max)`.
+
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn sfmt_rand_f64s(
+pub unsafe extern "C" fn sfmt_rand_f64s(
     ptr: *mut Sfmt1993764,
     out: *mut f64,
     count: usize,
     min: f64,
     max: f64,
 ) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
+    }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed64(buffer, rng.nextu(), Sfmt1993764::new, |r| {
-            r.randf(min, max)
-        });
+        stream::fill::<Sfmt1993764, u64, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }

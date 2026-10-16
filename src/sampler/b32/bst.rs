@@ -22,6 +22,7 @@ pub struct Bst32<'a, R: Rng<Word = u32> + 'a> {
 
 impl<'a, R: Rng<Word = u32> + 'a> Bst32<'a, R> {
     /// Creates a new sampler with the given random number generator and weights.
+    /// Panics unless weights are finite, nonnegative and have a positive finite sum.
     pub fn new(rng: &'a mut R, weights: &[f32]) -> Self {
         Self {
             rng,
@@ -33,9 +34,11 @@ impl<'a, R: Rng<Word = u32> + 'a> Bst32<'a, R> {
         let mut cumulative = Vec::with_capacity(weights.len());
         let mut sum = 0.0f32;
         for &w in weights {
+            assert!(w.is_finite() && w >= 0.0, "invalid weight");
             sum += w;
             cumulative.push(sum);
         }
+        assert!(sum.is_finite() && sum > 0.0, "invalid total weight");
         cumulative
     }
 }
@@ -48,12 +51,7 @@ impl<'a, R: Rng<Word = u32> + 'a> Sampler<'a, R> for Bst32<'a, R> {
     fn sample(&mut self) -> usize {
         let total = *self.cumulative.last().unwrap_or(&0.0);
         let r = self.rng.randf(0.0, total);
-        match self
-            .cumulative
-            .binary_search_by(|&c| c.partial_cmp(&r).unwrap())
-        {
-            Ok(i) | Err(i) => i.min(self.cumulative.len() - 1),
-        }
+        self.cumulative.partition_point(|&c| c <= r)
     }
 }
 

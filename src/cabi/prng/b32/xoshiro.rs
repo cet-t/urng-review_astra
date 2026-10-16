@@ -1,858 +1,497 @@
-use std::slice::from_raw_parts_mut;
+//! C ABI exports backed by the shared buffered stream. See [`crate::cabi`].
+use crate::cabi::stream;
+use crate::*;
 
-use crate::prng::b32::{Xoshiro128Pp, Xoshiro128Ss};
-use crate::rng::Rng;
-
-// --- Xoshiro128++ ---
-
-/// Creates a new `Xoshiro128Pp` instance.
-/// The caller is responsible for freeing the memory using `xoshiro128pp_free`.
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn xoshiro128pp_new(seed: u32) -> *mut Xoshiro128Pp {
-    Box::into_raw(Box::new(Xoshiro128Pp::new(seed)))
+    stream::new::<_, u32, 1>(Xoshiro128Pp::new(seed as u32))
 }
 
-/// Frees the memory of a `Xoshiro128Pp` instance.
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128pp_free(ptr: *mut Xoshiro128Pp) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = Box::from_raw(ptr);
-        }
-    }
+pub unsafe extern "C" fn xoshiro128pp_free(ptr: *mut Xoshiro128Pp) {
+    unsafe { stream::free::<Xoshiro128Pp, u32, 1>(ptr) }
 }
 
-/// Fills the output buffer with the next random `u32` values.
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128pp_next_u32s(ptr: *mut Xoshiro128Pp, out: *mut u32, count: usize) {
-    if count == 0 {
-        return;
-    }
+pub unsafe extern "C" fn xoshiro128pp_next_u32s(
+    ptr: *mut Xoshiro128Pp,
+    out: *mut u32,
+    count: usize,
+) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Pp::new, |r| r.nextu());
+        stream::fill::<Xoshiro128Pp, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
 
-/// Fills the output buffer with the next random `f32` values in the range [0, 1).
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128pp_next_f32s(ptr: *mut Xoshiro128Pp, out: *mut f32, count: usize) {
-    if count == 0 {
-        return;
-    }
+pub unsafe extern "C" fn xoshiro128pp_next_f32s(
+    ptr: *mut Xoshiro128Pp,
+    out: *mut f32,
+    count: usize,
+) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Pp::new, |r| r.nextf());
+        stream::fill::<Xoshiro128Pp, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
 
-/// Fills the output buffer with random `i32` values in the range [min, max].
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128pp_rand_i32s(
+pub unsafe extern "C" fn xoshiro128pp_rand_i32s(
     ptr: *mut Xoshiro128Pp,
     out: *mut i32,
     count: usize,
     min: i32,
     max: i32,
 ) {
-    if count == 0 {
+    if min > max {
         return;
     }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Pp::new, |r| {
-            r.randi(min, max)
-        });
+        stream::fill::<Xoshiro128Pp, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
 
-/// Fills the output buffer with random `f32` values in the range [min, max).
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128pp_rand_f32s(
+pub unsafe extern "C" fn xoshiro128pp_rand_f32s(
     ptr: *mut Xoshiro128Pp,
     out: *mut f32,
     count: usize,
     min: f32,
     max: f32,
 ) {
-    if count == 0 {
+    if !min.is_finite() || !max.is_finite() || min >= max {
         return;
     }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Pp::new, |r| {
-            r.randf(min, max)
-        });
+        stream::fill::<Xoshiro128Pp, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }
 
-// --- Xoshiro128** ---
-
-/// Creates a new `Xoshiro128Ss` instance.
-/// The caller is responsible for freeing the memory using `xoshiro128ss_free`.
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
 #[unsafe(no_mangle)]
 pub extern "C" fn xoshiro128ss_new(seed: u32) -> *mut Xoshiro128Ss {
-    Box::into_raw(Box::new(Xoshiro128Ss::new(seed)))
+    stream::new::<_, u32, 1>(Xoshiro128Ss::new(seed as u32))
 }
 
-/// Frees the memory of a `Xoshiro128Ss` instance.
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128ss_free(ptr: *mut Xoshiro128Ss) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = Box::from_raw(ptr);
-        }
-    }
+pub unsafe extern "C" fn xoshiro128ss_free(ptr: *mut Xoshiro128Ss) {
+    unsafe { stream::free::<Xoshiro128Ss, u32, 1>(ptr) }
 }
 
-/// Fills the output buffer with the next random `u32` values.
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128ss_next_u32s(ptr: *mut Xoshiro128Ss, out: *mut u32, count: usize) {
-    if count == 0 {
-        return;
-    }
+pub unsafe extern "C" fn xoshiro128ss_next_u32s(
+    ptr: *mut Xoshiro128Ss,
+    out: *mut u32,
+    count: usize,
+) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Ss::new, |r| r.nextu());
+        stream::fill::<Xoshiro128Ss, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextu(),
+        )
     }
 }
 
-/// Fills the output buffer with the next random `f32` values in the range [0, 1).
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128ss_next_f32s(ptr: *mut Xoshiro128Ss, out: *mut f32, count: usize) {
-    if count == 0 {
-        return;
-    }
+pub unsafe extern "C" fn xoshiro128ss_next_f32s(
+    ptr: *mut Xoshiro128Ss,
+    out: *mut f32,
+    count: usize,
+) {
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Ss::new, |r| r.nextf());
+        stream::fill::<Xoshiro128Ss, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.nextf(),
+        )
     }
 }
 
-/// Fills the output buffer with random `i32` values in the range [min, max].
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128ss_rand_i32s(
+pub unsafe extern "C" fn xoshiro128ss_rand_i32s(
     ptr: *mut Xoshiro128Ss,
     out: *mut i32,
     count: usize,
     min: i32,
     max: i32,
 ) {
-    if count == 0 {
+    if min > max {
         return;
     }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Ss::new, |r| {
-            r.randi(min, max)
-        });
+        stream::fill::<Xoshiro128Ss, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randi(min, max),
+        )
     }
 }
 
-/// Fills the output buffer with random `f32` values in the range [min, max).
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
 #[unsafe(no_mangle)]
-pub extern "C" fn xoshiro128ss_rand_f32s(
+pub unsafe extern "C" fn xoshiro128ss_rand_f32s(
     ptr: *mut Xoshiro128Ss,
     out: *mut f32,
     count: usize,
     min: f32,
     max: f32,
 ) {
-    if count == 0 {
+    if !min.is_finite() || !max.is_finite() || min >= max {
         return;
     }
     unsafe {
-        let rng = &mut *ptr;
-        let buffer = from_raw_parts_mut(out, count);
-        crate::_internal::par_fill_reseed32(buffer, rng.nextu(), Xoshiro128Ss::new, |r| {
-            r.randf(min, max)
-        });
+        stream::fill::<Xoshiro128Ss, u32, _, 1, _, _>(
+            ptr,
+            out,
+            count,
+            |r| [Rng::nextu(r)],
+            |r| r.randf(min, max),
+        )
     }
 }
 
-#[cfg(feature = "simd")]
-pub use simd::*;
-
-#[cfg(feature = "simd")]
-mod simd {
-    use crate::_internal::chunk_seed32;
-    use crate::RngV;
-    use crate::prng::b32::{Xoshiro128Ppx16, Xoshiro128Ssx16};
-    use rayon::iter::{IndexedParallelIterator, ParallelIterator};
-    use rayon::slice::ParallelSliceMut;
-    #[cfg(target_arch = "x86_64")]
-    use std::arch::x86_64::*;
-    use std::{ptr, slice::from_raw_parts_mut};
-
-    #[cfg(target_arch = "x86_64")]
-    const XOSHIRO128X16_LANES: usize = 16;
-    #[cfg(target_arch = "x86_64")]
-    const XOSHIRO128X16_PAR_CHUNK: usize = 1 << 20;
-
-    #[cfg(target_arch = "x86_64")]
-    #[inline]
-    #[target_feature(enable = "avx512f")]
-    unsafe fn xoshiro128ppx16_base_seed(rng: &mut Xoshiro128Ppx16) -> u32 {
-        let mut tmp = [0u32; XOSHIRO128X16_LANES];
-        let v = rng.nextuv();
-        unsafe { _mm512_storeu_si512(tmp.as_mut_ptr() as *mut _, v) };
-        tmp[0]
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
+#[unsafe(no_mangle)]
+pub extern "C" fn xoshiro128ppx16_new(seed: u32) -> *mut Xoshiro128Ppx16 {
+    if !std::is_x86_feature_detected!("avx512f") {
+        return std::ptr::null_mut();
     }
+    stream::new::<_, u32, 16>(unsafe { Xoshiro128Ppx16::new(seed as u32) })
+}
 
-    #[cfg(target_arch = "x86_64")]
-    #[inline]
-    #[target_feature(enable = "avx512f")]
-    unsafe fn xoshiro128ssx16_base_seed(rng: &mut Xoshiro128Ssx16) -> u32 {
-        let mut tmp = [0u32; XOSHIRO128X16_LANES];
-        let v = rng.nextuv();
-        unsafe { _mm512_storeu_si512(tmp.as_mut_ptr() as *mut _, v) };
-        tmp[0]
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ppx16_free(ptr: *mut Xoshiro128Ppx16) {
+    unsafe { stream::free::<Xoshiro128Ppx16, u32, 16>(ptr) }
+}
+
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ppx16_next_u32s(
+    ptr: *mut Xoshiro128Ppx16,
+    out: *mut u32,
+    count: usize,
+) {
+    unsafe {
+        stream::fill::<Xoshiro128Ppx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.nextu(),
+        )
     }
+}
 
-    // --- Xoshiro128++ x16 ---
-
-    /// Creates a new `Xoshiro128Ppx16` instance.
-    /// The caller is responsible for freeing the memory using `xoshiro128ppx16_free`.
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ppx16_new(seed: u32) -> *mut Xoshiro128Ppx16 {
-        unsafe { Box::into_raw(Box::new(Xoshiro128Ppx16::new(seed))) }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ppx16_next_f32s(
+    ptr: *mut Xoshiro128Ppx16,
+    out: *mut f32,
+    count: usize,
+) {
+    unsafe {
+        stream::fill::<Xoshiro128Ppx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.nextf(),
+        )
     }
+}
 
-    /// Frees the memory of a `Xoshiro128Ppx16` instance.
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ppx16_free(ptr: *mut Xoshiro128Ppx16) {
-        if !ptr.is_null() {
-            unsafe {
-                drop(Box::from_raw(ptr));
-            }
-        }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ppx16_rand_i32s(
+    ptr: *mut Xoshiro128Ppx16,
+    out: *mut i32,
+    count: usize,
+    min: i32,
+    max: i32,
+) {
+    if min > max {
+        return;
     }
-
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ppx16_next_u32s_chunk(
-        rng: &mut Xoshiro128Ppx16,
-        chunk: &mut [u32],
-        nt: bool,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-        const UNROLL: usize = XOSHIRO128X16_LANES * 4;
-
-        if aligned {
-            while remaining >= UNROLL {
-                let v0 = rng.nextuv();
-                let v1 = rng.nextuv();
-                let v2 = rng.nextuv();
-                let v3 = rng.nextuv();
-                _mm512_stream_si512(out_ptr as *mut _, v0);
-                _mm512_stream_si512(out_ptr.add(XOSHIRO128X16_LANES) as *mut _, v1);
-                _mm512_stream_si512(out_ptr.add(XOSHIRO128X16_LANES * 2) as *mut _, v2);
-                _mm512_stream_si512(out_ptr.add(XOSHIRO128X16_LANES * 3) as *mut _, v3);
-                out_ptr = out_ptr.add(UNROLL);
-                remaining -= UNROLL;
-            }
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextuv();
-                _mm512_stream_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= UNROLL {
-                let v0 = rng.nextuv();
-                let v1 = rng.nextuv();
-                let v2 = rng.nextuv();
-                let v3 = rng.nextuv();
-                _mm512_storeu_si512(out_ptr as *mut _, v0);
-                _mm512_storeu_si512(out_ptr.add(XOSHIRO128X16_LANES) as *mut _, v1);
-                _mm512_storeu_si512(out_ptr.add(XOSHIRO128X16_LANES * 2) as *mut _, v2);
-                _mm512_storeu_si512(out_ptr.add(XOSHIRO128X16_LANES * 3) as *mut _, v3);
-                out_ptr = out_ptr.add(UNROLL);
-                remaining -= UNROLL;
-            }
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextuv();
-                _mm512_storeu_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0u32; XOSHIRO128X16_LANES];
-            let v = rng.nextuv();
-            _mm512_storeu_si512(tmp.as_mut_ptr() as *mut _, v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
+    unsafe {
+        stream::fill::<Xoshiro128Ppx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.randi(min, max),
+        )
     }
+}
 
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ppx16_next_f32s_chunk(
-        rng: &mut Xoshiro128Ppx16,
-        chunk: &mut [f32],
-        nt: bool,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-
-        if aligned {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextfv();
-                _mm512_stream_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextfv();
-                _mm512_storeu_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0f32; XOSHIRO128X16_LANES];
-            let v = rng.nextfv();
-            _mm512_storeu_ps(tmp.as_mut_ptr(), v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ppx16_rand_f32s(
+    ptr: *mut Xoshiro128Ppx16,
+    out: *mut f32,
+    count: usize,
+    min: f32,
+    max: f32,
+) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
     }
-
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ppx16_rand_i32s_chunk(
-        rng: &mut Xoshiro128Ppx16,
-        chunk: &mut [i32],
-        nt: bool,
-        v_range: __m512i,
-        v_min: __m512i,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-
-        if aligned {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randiv(v_range, v_min);
-                _mm512_stream_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randiv(v_range, v_min);
-                _mm512_storeu_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0i32; XOSHIRO128X16_LANES];
-            let v = rng.randiv(v_range, v_min);
-            _mm512_storeu_si512(tmp.as_mut_ptr() as *mut _, v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
+    unsafe {
+        stream::fill::<Xoshiro128Ppx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.randf(min, max),
+        )
     }
+}
 
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ppx16_rand_f32s_chunk(
-        rng: &mut Xoshiro128Ppx16,
-        chunk: &mut [f32],
-        nt: bool,
-        v_mult: __m512,
-        v_min: __m512,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-
-        if aligned {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randfv(v_mult, v_min);
-                _mm512_stream_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randfv(v_mult, v_min);
-                _mm512_storeu_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0f32; XOSHIRO128X16_LANES];
-            let v = rng.randfv(v_mult, v_min);
-            _mm512_storeu_ps(tmp.as_mut_ptr(), v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Creates an opaque handle. SIMD variants return null on unsupported CPUs.
+#[unsafe(no_mangle)]
+pub extern "C" fn xoshiro128ssx16_new(seed: u32) -> *mut Xoshiro128Ssx16 {
+    if !std::is_x86_feature_detected!("avx512f") {
+        return std::ptr::null_mut();
     }
+    stream::new::<_, u32, 16>(unsafe { Xoshiro128Ssx16::new(seed as u32) })
+}
 
-    /// Fills the output buffer with the next random `u32` values.
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ppx16_next_u32s(
-        ptr: *mut Xoshiro128Ppx16,
-        out: *mut u32,
-        count: usize,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ppx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Frees an opaque handle; null is accepted.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ssx16_free(ptr: *mut Xoshiro128Ssx16) {
+    unsafe { stream::free::<Xoshiro128Ssx16, u32, 16>(ptr) }
+}
 
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ppx16::new(chunk_seed32(base_seed, chunk_idx));
-                    xoshiro128ppx16_next_u32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                    );
-                });
-        }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ssx16_next_u32s(
+    ptr: *mut Xoshiro128Ssx16,
+    out: *mut u32,
+    count: usize,
+) {
+    unsafe {
+        stream::fill::<Xoshiro128Ssx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.nextu(),
+        )
     }
+}
 
-    /// Fills the output buffer with the next random `f32` values in the range [0, 1).
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ppx16_next_f32s(
-        ptr: *mut Xoshiro128Ppx16,
-        out: *mut f32,
-        count: usize,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ppx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ppx16::new(chunk_seed32(base_seed, chunk_idx));
-                    xoshiro128ppx16_next_f32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                    );
-                });
-        }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ssx16_next_f32s(
+    ptr: *mut Xoshiro128Ssx16,
+    out: *mut f32,
+    count: usize,
+) {
+    unsafe {
+        stream::fill::<Xoshiro128Ssx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.nextf(),
+        )
     }
+}
 
-    /// Fills the output buffer with random `i32` values in the range [min, max].
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ppx16_rand_i32s(
-        ptr: *mut Xoshiro128Ppx16,
-        out: *mut i32,
-        count: usize,
-        min: i32,
-        max: i32,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ppx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ppx16::new(chunk_seed32(base_seed, chunk_idx));
-                    let v_range = _mm512_set1_epi64(max as i64 - min as i64 + 1);
-                    let v_min = _mm512_set1_epi32(min);
-                    xoshiro128ppx16_rand_i32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                        v_range,
-                        v_min,
-                    );
-                });
-        }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ssx16_rand_i32s(
+    ptr: *mut Xoshiro128Ssx16,
+    out: *mut i32,
+    count: usize,
+    min: i32,
+    max: i32,
+) {
+    if min > max {
+        return;
     }
-
-    /// Fills the output buffer with random `f32` values in the range [min, max).
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ppx16_rand_f32s(
-        ptr: *mut Xoshiro128Ppx16,
-        out: *mut f32,
-        count: usize,
-        min: f32,
-        max: f32,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ppx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ppx16::new(chunk_seed32(base_seed, chunk_idx));
-                    let v_mult = _mm512_set1_ps(max - min);
-                    let v_min = _mm512_set1_ps(min);
-                    xoshiro128ppx16_rand_f32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                        v_mult,
-                        v_min,
-                    );
-                });
-        }
+    unsafe {
+        stream::fill::<Xoshiro128Ssx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.randi(min, max),
+        )
     }
+}
 
-    // --- Xoshiro128** x16 ---
-
-    /// Creates a new `Xoshiro128Ssx16` instance.
-    /// The caller is responsible for freeing the memory using `xoshiro128ssx16_free`.
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ssx16_new(seed: u32) -> *mut Xoshiro128Ssx16 {
-        unsafe { Box::into_raw(Box::new(Xoshiro128Ssx16::new(seed))) }
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+/// Fills the next values, preserving the stream across calls and alignments.
+/// # Safety
+/// Rejected fill inputs listed in [`crate::cabi`] are accepted without access.
+/// Otherwise the handle must come from the matching constructor and be live and exclusive.
+/// Nonempty output buffers must be valid, naturally aligned, and disjoint from the
+/// handle; count must fit the allocation. Free consumes the handle exactly once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn xoshiro128ssx16_rand_f32s(
+    ptr: *mut Xoshiro128Ssx16,
+    out: *mut f32,
+    count: usize,
+    min: f32,
+    max: f32,
+) {
+    if !min.is_finite() || !max.is_finite() || min >= max {
+        return;
     }
-
-    /// Frees the memory of a `Xoshiro128Ssx16` instance.
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ssx16_free(ptr: *mut Xoshiro128Ssx16) {
-        if !ptr.is_null() {
-            unsafe {
-                let _ = Box::from_raw(ptr);
-            }
-        }
+    unsafe {
+        stream::fill::<Xoshiro128Ssx16, u32, _, 16, _, _>(
+            ptr,
+            out,
+            count,
+            |r| std::mem::transmute(r.nextuv()),
+            |r| r.randf(min, max),
+        )
     }
-
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ssx16_next_u32s_chunk(
-        rng: &mut Xoshiro128Ssx16,
-        chunk: &mut [u32],
-        nt: bool,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-        const UNROLL: usize = XOSHIRO128X16_LANES * 4;
-
-        if aligned {
-            while remaining >= UNROLL {
-                let v0 = rng.nextuv();
-                let v1 = rng.nextuv();
-                let v2 = rng.nextuv();
-                let v3 = rng.nextuv();
-                _mm512_stream_si512(out_ptr as *mut _, v0);
-                _mm512_stream_si512(out_ptr.add(XOSHIRO128X16_LANES) as *mut _, v1);
-                _mm512_stream_si512(out_ptr.add(XOSHIRO128X16_LANES * 2) as *mut _, v2);
-                _mm512_stream_si512(out_ptr.add(XOSHIRO128X16_LANES * 3) as *mut _, v3);
-                out_ptr = out_ptr.add(UNROLL);
-                remaining -= UNROLL;
-            }
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextuv();
-                _mm512_stream_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= UNROLL {
-                let v0 = rng.nextuv();
-                let v1 = rng.nextuv();
-                let v2 = rng.nextuv();
-                let v3 = rng.nextuv();
-                _mm512_storeu_si512(out_ptr as *mut _, v0);
-                _mm512_storeu_si512(out_ptr.add(XOSHIRO128X16_LANES) as *mut _, v1);
-                _mm512_storeu_si512(out_ptr.add(XOSHIRO128X16_LANES * 2) as *mut _, v2);
-                _mm512_storeu_si512(out_ptr.add(XOSHIRO128X16_LANES * 3) as *mut _, v3);
-                out_ptr = out_ptr.add(UNROLL);
-                remaining -= UNROLL;
-            }
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextuv();
-                _mm512_storeu_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0u32; XOSHIRO128X16_LANES];
-            let v = rng.nextuv();
-            _mm512_storeu_si512(tmp.as_mut_ptr() as *mut _, v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
-    }
-
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ssx16_next_f32s_chunk(
-        rng: &mut Xoshiro128Ssx16,
-        chunk: &mut [f32],
-        nt: bool,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-
-        if aligned {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextfv();
-                _mm512_stream_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.nextfv();
-                _mm512_storeu_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0f32; XOSHIRO128X16_LANES];
-            let v = rng.nextfv();
-            _mm512_storeu_ps(tmp.as_mut_ptr(), v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
-    }
-
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ssx16_rand_i32s_chunk(
-        rng: &mut Xoshiro128Ssx16,
-        chunk: &mut [i32],
-        nt: bool,
-        v_range: __m512i,
-        v_min: __m512i,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-
-        if aligned {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randiv(v_range, v_min);
-                _mm512_stream_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randiv(v_range, v_min);
-                _mm512_storeu_si512(out_ptr as *mut _, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0i32; XOSHIRO128X16_LANES];
-            let v = rng.randiv(v_range, v_min);
-            _mm512_storeu_si512(tmp.as_mut_ptr() as *mut _, v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
-    }
-
-    #[cfg(target_arch = "x86_64")]
-    #[target_feature(enable = "avx512f")]
-    #[allow(unsafe_op_in_unsafe_fn)]
-    unsafe fn xoshiro128ssx16_rand_f32s_chunk(
-        rng: &mut Xoshiro128Ssx16,
-        chunk: &mut [f32],
-        nt: bool,
-        v_mult: __m512,
-        v_min: __m512,
-    ) {
-        let mut out_ptr = chunk.as_mut_ptr();
-        let mut remaining = chunk.len();
-        let aligned = nt && (out_ptr as usize & 63) == 0;
-
-        if aligned {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randfv(v_mult, v_min);
-                _mm512_stream_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        } else {
-            while remaining >= XOSHIRO128X16_LANES {
-                let v = rng.randfv(v_mult, v_min);
-                _mm512_storeu_ps(out_ptr, v);
-                out_ptr = out_ptr.add(XOSHIRO128X16_LANES);
-                remaining -= XOSHIRO128X16_LANES;
-            }
-        }
-
-        if remaining > 0 {
-            let mut tmp = [0f32; XOSHIRO128X16_LANES];
-            let v = rng.randfv(v_mult, v_min);
-            _mm512_storeu_ps(tmp.as_mut_ptr(), v);
-            ptr::copy_nonoverlapping(tmp.as_ptr(), out_ptr, remaining);
-        }
-    }
-
-    /// Fills the output buffer with the next random `u32` values.
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ssx16_next_u32s(
-        ptr: *mut Xoshiro128Ssx16,
-        out: *mut u32,
-        count: usize,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ssx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ssx16::new(chunk_seed32(base_seed, chunk_idx));
-                    xoshiro128ssx16_next_u32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                    );
-                });
-        }
-    }
-
-    /// Fills the output buffer with the next random `f32` values in the range [0, 1).
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ssx16_next_f32s(
-        ptr: *mut Xoshiro128Ssx16,
-        out: *mut f32,
-        count: usize,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ssx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ssx16::new(chunk_seed32(base_seed, chunk_idx));
-                    xoshiro128ssx16_next_f32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                    );
-                });
-        }
-    }
-
-    /// Fills the output buffer with random `i32` values in the range [min, max].
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ssx16_rand_i32s(
-        ptr: *mut Xoshiro128Ssx16,
-        out: *mut i32,
-        count: usize,
-        min: i32,
-        max: i32,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ssx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ssx16::new(chunk_seed32(base_seed, chunk_idx));
-                    let v_range = _mm512_set1_epi64(max as i64 - min as i64 + 1);
-                    let v_min = _mm512_set1_epi32(min);
-                    xoshiro128ssx16_rand_i32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                        v_range,
-                        v_min,
-                    );
-                });
-        }
-    }
-
-    /// Fills the output buffer with random `f32` values in the range [min, max).
-    #[unsafe(no_mangle)]
-    pub extern "C" fn xoshiro128ssx16_rand_f32s(
-        ptr: *mut Xoshiro128Ssx16,
-        out: *mut f32,
-        count: usize,
-        min: f32,
-        max: f32,
-    ) {
-        if count == 0 {
-            return;
-        }
-        unsafe {
-            let rng = &mut *ptr;
-            let base_seed = xoshiro128ssx16_base_seed(rng);
-            let buffer = from_raw_parts_mut(out, count);
-
-            buffer
-                .par_chunks_mut(XOSHIRO128X16_PAR_CHUNK)
-                .enumerate()
-                .for_each(|(chunk_idx, chunk)| {
-                    let mut local_rng = Xoshiro128Ssx16::new(chunk_seed32(base_seed, chunk_idx));
-                    let v_mult = _mm512_set1_ps(max - min);
-                    let v_min = _mm512_set1_ps(min);
-                    xoshiro128ssx16_rand_f32s_chunk(
-                        &mut local_rng,
-                        chunk,
-                        crate::_internal::prefer_nt_for(count, chunk),
-                        v_mult,
-                        v_min,
-                    );
-                });
-        }
-    }
-} // mod simd
+}

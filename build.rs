@@ -77,6 +77,8 @@ fn regex_replace_version(content: &str, version: &str) -> String {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // バージョン変更時に README.md を更新するため Cargo.toml の変更を追跡
     println!("cargo:rerun-if-changed=Cargo.toml");
+    println!("cargo:rerun-if-changed=src");
+    println!("cargo:rerun-if-env-changed=DOCS_RS");
 
     // docs.rs では read-only filesystem につき書き込みをスキップ
     if std::env::var("DOCS_RS").is_ok() {
@@ -86,6 +88,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     update_readme_version()?;
 
     let cs_path = "./target/release/RngNative.cs";
+    std::fs::create_dir_all("./target/release")?;
 
     csbindgen::Builder::default()
         // 32-bit algorithm implementations (struct definitions)
@@ -98,6 +101,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .input_extern_file("src/cbrng/b32/squares.rs")
         .input_extern_file("src/prng/b32/xoshiro.rs")
         .input_extern_file("src/prng/b32/jsf.rs")
+        .input_extern_file("src/prng/b32/sfc.rs")
+        .input_extern_file("src/prng/b32/xoroshiro.rs")
         // 32-bit C ABI bindings
         .input_extern_file("src/cabi/prng/b32/mersenne.rs")
         .input_extern_file("src/cabi/prng/b32/pcg.rs")
@@ -108,6 +113,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .input_extern_file("src/cabi/cbrng/b32/squares.rs")
         .input_extern_file("src/cabi/prng/b32/xoshiro.rs")
         .input_extern_file("src/cabi/prng/b32/jsf.rs")
+        .input_extern_file("src/cabi/prng/b32/sfc.rs")
+        .input_extern_file("src/cabi/prng/b32/xoroshiro.rs")
         // 64-bit algorithm implementations (struct definitions)
         .input_extern_file("src/prng/b64/splitmix.rs")
         .input_extern_file("src/prng/b64/mersenne.rs")
@@ -131,6 +138,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .input_extern_file("src/cabi/prng/b64/splitmix.rs")
         .input_extern_file("src/cabi/cbrng/b64/threefish.rs")
         .input_extern_file("src/cabi/prng/b64/xoroshiro.rs")
+        .input_extern_file("src/cabi/prng/b64/biski.rs")
         .csharp_dll_name("urng")
         .generate_csharp_file(cs_path)?;
 

@@ -23,12 +23,19 @@ pub struct Pcg32 {
 }
 
 impl Pcg32 {
+    #[cfg(test)]
+    pub(crate) fn from_raw_for_test(state: u64, inc: u64) -> Self {
+        Self {
+            state: wrap!(state),
+            inc: wrap!(inc),
+        }
+    }
     /// Creates a new `Pcg32` instance with the given seed.
     pub const fn new(seed: u32) -> Self {
         let mut seedgen = sm64_from_seed32!(seed);
         Pcg32 {
             state: wrap!(seedgen.nextu_const()),
-            inc: wrap!(seedgen.nextu_const()),
+            inc: wrap!(seedgen.nextu_const() | 1),
         }
     }
 }
@@ -59,9 +66,6 @@ pub mod simd {
     use crate::RngV;
 
     pub const PCG32X8_LANE: usize = 8;
-    pub const PCG32X8_PAR_CHUNK: usize = 131_072;
-    pub const PCG32X8_PAR_CHUNK_BLOCKS: u64 = (PCG32X8_PAR_CHUNK / PCG32X8_LANE) as u64;
-    pub const PCG32_MULT: u64 = 6364136223846793005;
 
     /// 8-way SIMD implementation of PCG (Permuted Congruential Generator) 32-bit RNG.
     /// This implementation uses AVX-512F instructions to generate 8 random numbers in parallel.
@@ -98,7 +102,7 @@ pub mod simd {
             state.iter_mut().for_each(|v| *v = seedgen.nextu_const());
 
             let mut inc = [0u64; PCG32X8_LANE];
-            inc.iter_mut().for_each(|v| *v = seedgen.nextu_const());
+            inc.iter_mut().for_each(|v| *v = seedgen.nextu_const() | 1);
 
             unsafe {
                 Pcg32x8 {
@@ -173,4 +177,54 @@ mod tests {
     use super::*;
 
     crate::safe_test! { Pcg32 }
+}
+
+#[cfg(test)]
+mod regression {
+    use super::*;
+    #[test]
+    fn official_pcg_demo_vector_and_odd_increments() {
+        // pcg32_srandom_r(initstate=42, initseq=54), pcg-c-basic demo.
+        let mut r = Pcg32 {
+            state: wrap!(0),
+            inc: wrap!(109),
+        };
+        let _ = r.nextu();
+        r.state += 42;
+        let _ = r.nextu();
+        assert_eq!(
+            std::array::from_fn::<_, 6, _>(|_| r.nextu()),
+            [
+                0xa15c02b7, 0x7b47f409, 0xba1d3330, 0x83d2f293, 0xbfa4784b, 0xcbed606e
+            ]
+        );
+        for seed in 0..1024 {
+            assert_eq!(*Pcg32::new(seed).inc & 1, 1);
+        }
+    }
+    #[cfg(all(feature = "simd", target_arch = "x86_64"))]
+    #[test]
+    fn simd_all_lanes_match_scalar_and_reference() {
+        if !std::is_x86_feature_detected!("avx512f") {
+            return;
+        }
+        unsafe {
+            let mut r = Pcg32x8::new(42);
+            let states: [u64; 8] = std::mem::transmute(r.state);
+            let inc: [u64; 8] = std::mem::transmute(r.inc);
+            let mut refs = states;
+            let mut scalars = std::array::from_fn::<_, 8, _>(|i| Pcg32 {
+                state: wrap!(states[i]),
+                inc: wrap!(inc[i]),
+            });
+            assert!(inc.into_iter().all(|x| x & 1 == 1));
+            for _ in 0..1024 {
+                for (i, word) in r.nextu().into_iter().enumerate() {
+                    let expected = crate::test_reference::pcg(&mut refs[i], inc[i]);
+                    assert_eq!(word, expected);
+                    assert_eq!(scalars[i].nextu(), expected);
+                }
+            }
+        }
+    }
 }

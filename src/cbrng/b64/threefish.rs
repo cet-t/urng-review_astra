@@ -80,7 +80,7 @@ impl Threefish256 {
             tw: [tw0, tw1, tw0 ^ tw1],
             index: wrap!(4),
             buf: wrap![0; 4],
-            pos: wrap!(0),
+            pos: wrap!(4),
         }
     }
 

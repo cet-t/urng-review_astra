@@ -210,5 +210,5 @@ mod tests {
         target_feature = "avx512f",
         target_feature = "avx512dq"
     ))]
-    crate::unsafe_test! { Squares32x8 }
+    crate::unsafe_test! { nextu, nextf; Squares32x8 }
 }

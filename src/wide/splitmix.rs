@@ -27,10 +27,10 @@ macro_rules! impl_variants {
 
             #[allow(dead_code)]
             impl [<SplitMix32x $size>] {
-                #[doc = "Creates a new generator, seeding every lane from `seed | 1` and advancing by the golden ratio."]
+                #[doc = "Creates a new generator, seeding every lane from `seed` and advancing by the golden ratio."]
                 pub fn new(seed: u32) -> Self {
                     let mut state = [0u32; $size];
-                    state.iter_mut().fold(seed | 1, |s, x| {
+                    state.iter_mut().fold(seed, |s, x| {
                         *x = s;
                         s.wrapping_add(0x9E3779B9)
                     });
@@ -42,10 +42,8 @@ macro_rules! impl_variants {
 
                 #[inline(always)]
                 pub(crate) fn compute(state: [<u32x $size>]) -> [<u32x $size>] {
-                    let mut z = state;
-                    z = (z ^ (z >> 16)) * [<u32x $size>]::splat(0x85EBCA6B);
-                    z = (z ^ (z >> 13)) * [<u32x $size>]::splat(0xC2B2AE35);
-                    z ^ (z >> 16)
+                    let words: [u32; $size] = bytemuck::cast(state);
+                    [<u32x $size>]::from(words.map(crate::SplitMix32::compute))
                 }
             }
 
@@ -54,11 +52,11 @@ macro_rules! impl_variants {
 
                 #[doc = "Generates the next block of `u32` values, one per SIMD lane."]
                 #[doc = ""]
-                #[doc = "Advances the shared counter by `0x9E3779B9` and applies the two-multiply finalizer."]
+                #[doc = "Returns consecutive scalar SplitMix32 words and advances each lane by WIDTH times the increment."]
                 #[inline(always)]
                 fn nextu(&mut self) -> [Self::Word; $size] {
-                    self.state += [<u32x $size>]::splat(0x9E3779B9);
-                    let z = Self::compute(self.state);
+                    let z = Self::compute(self.state + [<u32x $size>]::splat(0x9E3779B9));
+                    self.state += [<u32x $size>]::splat(0x9E3779B9u32.wrapping_mul($size));
                     bytemuck::cast(z)
                 }
             }

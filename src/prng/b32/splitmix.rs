@@ -26,16 +26,18 @@ const B: u64 = 0xC4CE_B9FE_1A85_EC53;
 impl SplitMix32 {
     /// Creates a new `SplitMix32` instance with the given seed.
     pub const fn new(seed: u32) -> Self {
-        Self {
-            state: wrap!(seed | 1),
-        }
+        Self { state: wrap!(seed) }
     }
 
     #[inline(always)]
     pub(crate) const fn nextu_const(&mut self) -> u32 {
         self.state.0.0 = self.state.0.0.wrapping_add(0x9E3779B9);
 
-        let mut z = self.state.0.0 as u64;
+        Self::compute(self.state.0.0)
+    }
+
+    pub(crate) const fn compute(state: u32) -> u32 {
+        let mut z = state as u64;
         z = (z ^ (z >> 16)).wrapping_mul(A);
         z = (z ^ (z >> 16)).wrapping_mul(B);
         (z ^ (z >> 16)) as u32
@@ -47,12 +49,7 @@ impl Rng for SplitMix32 {
 
     #[inline]
     fn nextu(&mut self) -> Self::Word {
-        self.state += 0x9E3779B9;
-
-        let mut z = self.state.cast::<u64>();
-        z = (z ^ (z >> 16)) * A;
-        z = (z ^ (z >> 16)) * B;
-        *(z ^ (z >> 16)).cast::<u32>()
+        self.nextu_const()
     }
 }
 
@@ -67,8 +64,6 @@ pub mod simd {
     #[cfg(target_arch = "x86_64")]
     use crate::{RngV, SplitMix32};
 
-    pub const SPLITMIX32X16: usize = 16;
-    pub const SPLITMIX32X16_PAR_CHUNK: usize = 8192;
     pub const SPLITMIX32_GAMMA: u32 = 0x9E37_79B9;
 
     /// 16-way SIMD implementation of SplitMix32 32-bit RNG.
@@ -97,17 +92,11 @@ pub mod simd {
         /// The caller must ensure the CPU supports the `avx512f` target feature.
         #[target_feature(enable = "avx512f")]
         pub unsafe fn new(seed: u32) -> Self {
-            let mut sm = SplitMix32::new(seed);
-
-            let mut s = [0u32; SPLITMIX32X16];
-            for i in 0..SPLITMIX32X16 {
-                s[i] = sm.nextu_const();
-            }
-
-            unsafe {
-                Self {
-                    state: _mm512_loadu_si512(s.as_ptr() as _),
-                }
+            let lanes: [u32; 16] = std::array::from_fn(|i| {
+                seed.wrapping_add((i as u32).wrapping_mul(SPLITMIX32_GAMMA))
+            });
+            Self {
+                state: unsafe { std::mem::transmute(lanes) },
             }
         }
 
@@ -118,15 +107,8 @@ pub mod simd {
         /// The caller must ensure the CPU supports the `avx512f` target feature.
         #[target_feature(enable = "avx512f")]
         pub unsafe fn compute(state: __m512i) -> __m512i {
-            let c1 = _mm512_set1_epi32(0x85EB_CA6Bu32 as i32);
-            let c2 = _mm512_set1_epi32(0xC2B2_AE35u32 as i32);
-
-            let mut z = state;
-            z = _mm512_xor_si512(z, _mm512_srli_epi32(z, 16));
-            z = _mm512_add_epi32(z, c1);
-            z = _mm512_xor_si512(z, _mm512_srli_epi32(z, 13));
-            z = _mm512_add_epi32(z, c2);
-            _mm512_xor_si512(z, _mm512_srli_epi32(z, 16))
+            let lanes: [u32; 16] = unsafe { std::mem::transmute(state) };
+            unsafe { std::mem::transmute(lanes.map(SplitMix32::compute)) }
         }
     }
 
@@ -135,14 +117,14 @@ pub mod simd {
         type Word = __m512i;
 
         fn nextuv(&mut self) -> Self::Word {
-            unsafe {
-                let v = Self::compute(self.state);
-                self.state = _mm512_add_epi32(
-                    self.state,
-                    _mm512_set1_epi32(SPLITMIX32_GAMMA.wrapping_mul(SPLITMIX32X16 as u32) as i32),
-                );
-                v
-            }
+            let lanes: [u32; 16] = unsafe { std::mem::transmute(self.state) };
+            let output = lanes.map(|v| SplitMix32::compute(v.wrapping_add(SPLITMIX32_GAMMA)));
+            self.state = unsafe {
+                std::mem::transmute(
+                    lanes.map(|v| v.wrapping_add(SPLITMIX32_GAMMA.wrapping_mul(16))),
+                )
+            };
+            unsafe { std::mem::transmute(output) }
         }
     }
 }
